@@ -60,9 +60,19 @@ QString SSHAgent::authSockOverride() const
     return config()->get(Config::SSHAgent_AuthSockOverride).toString();
 }
 
+QString SSHAgent::securityKeyProviderOverride() const
+{
+    return config()->get(Config::SSHAgent_SecurityKeyProviderOverride).toString();
+}
+
 void SSHAgent::setAuthSockOverride(QString& authSockOverride)
 {
     config()->set(Config::SSHAgent_AuthSockOverride, authSockOverride);
+}
+
+void SSHAgent::setSecurityKeyProviderOverride(QString& securityKeyProviderOverride)
+{
+    config()->set(Config::SSHAgent_SecurityKeyProviderOverride, securityKeyProviderOverride);
 }
 
 #ifdef Q_OS_WIN
@@ -96,6 +106,21 @@ QString SSHAgent::socketPath(bool allowOverride) const
 #endif
 
     return socketPath;
+}
+
+QString SSHAgent::securityKeyProvider(bool allowOverride) const
+{
+    QString skProvider;
+
+    if (allowOverride) {
+        skProvider = securityKeyProviderOverride();
+    }
+
+    if (skProvider.isEmpty()) {
+        skProvider = QProcessEnvironment::systemEnvironment().value("SSH_SK_PROVIDER", "internal");
+    }
+
+    return skProvider;
 }
 
 const QString SSHAgent::errorString() const
@@ -234,10 +259,12 @@ bool SSHAgent::addIdentity(OpenSSHKey& key, const KeeAgentSettings& settings, co
 
     QByteArray requestData;
     BinaryStream request(&requestData);
+    bool isSecurityKey = key.type().startsWith("sk-");
 
-    request.write((settings.useLifetimeConstraintWhenAdding() || settings.useConfirmConstraintWhenAdding())
-                      ? SSH_AGENTC_ADD_ID_CONSTRAINED
-                      : SSH_AGENTC_ADD_IDENTITY);
+    request.write(
+        (settings.useLifetimeConstraintWhenAdding() || settings.useConfirmConstraintWhenAdding() || isSecurityKey)
+            ? SSH_AGENTC_ADD_ID_CONSTRAINED
+            : SSH_AGENTC_ADD_IDENTITY);
     key.writePrivate(request);
 
     if (settings.useLifetimeConstraintWhenAdding()) {
@@ -247,6 +274,12 @@ bool SSHAgent::addIdentity(OpenSSHKey& key, const KeeAgentSettings& settings, co
 
     if (settings.useConfirmConstraintWhenAdding()) {
         request.write(SSH_AGENT_CONSTRAIN_CONFIRM);
+    }
+
+    if (isSecurityKey) {
+        request.write(SSH_AGENT_CONSTRAIN_EXTENSION);
+        request.writeString(QString("sk-provider@openssh.com"));
+        request.writeString(securityKeyProvider());
     }
 
     QByteArray responseData;
@@ -264,6 +297,11 @@ bool SSHAgent::addIdentity(OpenSSHKey& key, const KeeAgentSettings& settings, co
 
         if (settings.useConfirmConstraintWhenAdding()) {
             m_error += "\n" + tr("A confirmation request is not supported by the agent (check options).");
+        }
+
+        if (isSecurityKey) {
+            m_error +=
+                "\n" + tr("Security keys are not supported by the agent or the security key provider is unavailable.");
         }
 
         return false;

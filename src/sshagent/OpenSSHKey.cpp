@@ -475,6 +475,8 @@ bool OpenSSHKey::readPublic(BinaryStream& stream)
         { "ecdsa-sha2-nistp384",                {STR_PART, STR_PART} },
         { "ecdsa-sha2-nistp521",                {STR_PART, STR_PART} },
         { "ssh-ed25519",                        {STR_PART} },
+        { "sk-ecdsa-sha2-nistp256@openssh.com", {STR_PART, STR_PART, STR_PART} },
+        { "sk-ssh-ed25519@openssh.com",         {STR_PART, STR_PART} },
     };
     // clang-format on
 
@@ -504,6 +506,8 @@ bool OpenSSHKey::readPrivate(BinaryStream& stream)
         { "ecdsa-sha2-nistp384",                {STR_PART, STR_PART, STR_PART} },
         { "ecdsa-sha2-nistp521",                {STR_PART, STR_PART, STR_PART} },
         { "ssh-ed25519",                        {STR_PART, STR_PART} },
+        { "sk-ecdsa-sha2-nistp256@openssh.com", {STR_PART, STR_PART, STR_PART, UINT8_PART, STR_PART, STR_PART} },
+        { "sk-ssh-ed25519@openssh.com",         {STR_PART, STR_PART, UINT8_PART, STR_PART, STR_PART} },
     };
     // clang-format on
 

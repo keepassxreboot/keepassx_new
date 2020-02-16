@@ -41,6 +41,8 @@ private slots:
     void testDecryptOpenSSHAES256CTR();
     void testDecryptRSAAES256CTR();
     void testDecryptUTF8();
+    void testParseECDSASecurityKey();
+    void testParseED25519SecurityKey();
 };
 
 #endif // TESTOPENSSHKEY_H
