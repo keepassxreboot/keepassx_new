@@ -664,11 +664,43 @@ void DatabaseTabWidget::unlockDatabaseInDialog(DatabaseWidget* dbWidget,
                                                DatabaseOpenDialog::Intent intent,
                                                const QString& filePath)
 {
-    m_databaseOpenDialog->setTargetDatabaseWidget(dbWidget);
+    m_databaseOpenDialog->clearForms();
     m_databaseOpenDialog->setIntent(intent);
-    m_databaseOpenDialog->setFilePath(filePath);
+    m_databaseOpenDialog->setTarget(dbWidget, filePath);
+    displayUnlockDialog();
+}
 
+/**
+ * Unlock a database with an unlock popup dialog.
+ * The dialog allows the user to select any open & unlocked database.
+ *
+ * @param intent intent for unlocking
+ */
+void DatabaseTabWidget::unlockAnyDatabaseInDialog(DatabaseOpenDialog::Intent intent)
+{
+    m_databaseOpenDialog->clearForms();
+    m_databaseOpenDialog->setIntent(intent);
+
+    // add a tab to the dialog for each open unlocked database
+    for (int i = 0, c = count(); i < c; ++i) {
+        auto* dbWidget = databaseWidgetFromIndex(i);
+        if (dbWidget && dbWidget->isLocked()) {
+            m_databaseOpenDialog->addDatabaseTab(dbWidget);
+        }
+    }
+    // default to the current tab
+    m_databaseOpenDialog->setActiveDatabaseTab(currentDatabaseWidget());
+    displayUnlockDialog();
+}
+
+/**
+ * Display the unlock dialog after it's been initialized.
+ * This is an internal method, it should only be called by unlockDatabaseInDialog or unlockAnyDatabaseInDialog.
+ */
+void DatabaseTabWidget::displayUnlockDialog()
+{
 #ifdef Q_OS_MACOS
+    auto intent = m_databaseOpenDialog->intent();
     if (intent == DatabaseOpenDialog::Intent::AutoType || intent == DatabaseOpenDialog::Intent::Browser) {
         macUtils()->raiseOwnWindow();
         Tools::wait(200);
@@ -753,7 +785,7 @@ void DatabaseTabWidget::performGlobalAutoType()
         if (config()->get(Config::Security_RelockAutoType).toBool()) {
             m_dbWidgetPendingLock = currentDatabaseWidget();
         }
-        unlockDatabaseInDialog(currentDatabaseWidget(), DatabaseOpenDialog::Intent::AutoType);
+        unlockAnyDatabaseInDialog(DatabaseOpenDialog::Intent::AutoType);
     }
 }
 
@@ -761,6 +793,6 @@ void DatabaseTabWidget::performBrowserUnlock()
 {
     auto dbWidget = currentDatabaseWidget();
     if (dbWidget && dbWidget->isLocked()) {
-        unlockDatabaseInDialog(dbWidget, DatabaseOpenDialog::Intent::Browser);
+        unlockAnyDatabaseInDialog(DatabaseOpenDialog::Intent::Browser);
     }
 }
