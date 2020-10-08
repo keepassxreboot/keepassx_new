@@ -97,10 +97,21 @@ bool TouchID::storeKey(const QString& databasePath, const QByteArray& passwordKe
 
     // prepare adding secure entry to the macOS KeyChain
     CFErrorRef error = NULL;
-    SecAccessControlRef sacObject = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-                                                                    kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                                    kSecAccessControlTouchIDCurrentSet, // depr: kSecAccessControlBiometryCurrentSet,
-                                                                    &error);
+    SecAccessControlRef sacObject;
+    if (@available(macOS 10.15, *)) {
+        // kSecAccessControlWatch is only available for macOS 10.15 and later
+        sacObject = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                                    kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                                                    kSecAccessControlBiometryCurrentSet | kSecAccessControlWatch,
+                                                    &error);
+    }
+    else {
+        sacObject = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                                    kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                                                    kSecAccessControlTouchIDCurrentSet, // depr: kSecAccessControlBiometryCurrentSet,
+                                                    &error);
+    }
+
 
     if (sacObject == NULL || error != NULL) {
         NSError* e = (__bridge NSError*) error;
@@ -225,7 +236,16 @@ bool TouchID::isAvailable()
 
     @try {
         LAContext* context = [[LAContext alloc] init];
-        bool canAuthenticate = [context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil];
+
+        LAPolicy policyCode;
+        if (@available(macOS 10.15, *)) {
+            policyCode = LAPolicyDeviceOwnerAuthenticationWithBiometricsOrWatch;
+        }
+        else {
+            policyCode = LAPolicyDeviceOwnerAuthenticationWithBiometrics;
+        }
+
+        bool canAuthenticate = [context canEvaluatePolicy:policyCode error:nil];
         [context release];
         this->m_available = canAuthenticate ? TOUCHID_AVAILABLE : TOUCHID_NOT_AVAILABLE;
         return canAuthenticate;
@@ -257,7 +277,16 @@ bool TouchID::authenticate(const QString& message) const
         LAContext* context = [[LAContext alloc] init];
         __block TouchIDResult result = kTouchIDResultNone;
         NSString* authMessage = msg.toNSString(); // autoreleased
-        [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+
+        LAPolicy policyCode;
+        if (@available(macOS 10.15, *)) {
+            policyCode = LAPolicyDeviceOwnerAuthenticationWithBiometricsOrWatch;
+        }
+        else {
+            policyCode = LAPolicyDeviceOwnerAuthenticationWithBiometrics;
+        }
+
+        [context evaluatePolicy:policyCode
                 localizedReason:authMessage reply:^(BOOL success, NSError* error) {
                 Q_UNUSED(error);
                 result = success ? kTouchIDResultAllowed : kTouchIDResultFailed;
