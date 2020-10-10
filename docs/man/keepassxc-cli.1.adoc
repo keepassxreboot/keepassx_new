@@ -39,6 +39,16 @@ It provides the ability to query and modify the entries of a KeePass database, d
 *analyze* [_options_] <__database__>::
   Analyzes passwords in a database for weaknesses using offline HIBP SHA-1 hash lookup.
 
+*attachment-export* <__database__> <__entry__> <__name__>::
+  Exports the content of an attachment of an entry to standard output.
+
+*attachment-import* [_options_] <__database__> <__entry__> <__name__> <__attachment__>::
+  Imports the attachment into an entry.
+  An existing attachment with the same name may be overwritten if the *-f* option is specified.
+
+*attachment-rm* <__database__> <__entry__> <__name__>::
+  Removes the attachment of an entry.
+
 *clip* [_options_] <__database__> <__entry__> [_timeout_]::
   Copies an attribute or the current TOTP (if the *-t* option is specified) of a database entry to the clipboard.
   If no attribute name is specified using the *-a* option, the password is copied.
