@@ -23,9 +23,10 @@
 
 #include <QFile>
 
-const QCommandLineOption AttachmentImport::ForceOption = QCommandLineOption(QStringList() << "f"
-                                                                                          << "force",
-                                                                            QObject::tr("Overwrite existing attachments."));
+const QCommandLineOption AttachmentImport::ForceOption =
+    QCommandLineOption(QStringList() << "f"
+                                     << "force",
+                       QObject::tr("Overwrite existing attachments."));
 
 AttachmentImport::AttachmentImport()
 {
@@ -34,7 +35,8 @@ AttachmentImport::AttachmentImport()
     options.append(AttachmentImport::ForceOption);
     positionalArguments.append({QString("entry"), QObject::tr("Path of the entry."), QString("")});
     positionalArguments.append({QString("name"), QObject::tr("Name of the attachment to be added."), QString("")});
-    positionalArguments.append({QString("attachment"), QObject::tr("Path of the attachment to be added."), QString("")});
+    positionalArguments.append(
+        {QString("attachment"), QObject::tr("Path of the attachment to be added."), QString("")});
 }
 
 int AttachmentImport::executeWithDatabase(QSharedPointer<Database> database, QSharedPointer<QCommandLineParser> parser)
@@ -77,6 +79,8 @@ int AttachmentImport::executeWithDatabase(QSharedPointer<Database> database, QSh
         return EXIT_FAILURE;
     }
 
-    out << QObject::tr("Successfully imported attachment %1 as %2 to entry %3.").arg(attachmentPath, attachmentName, entryPath) << endl;
+    out << QObject::tr("Successfully imported attachment %1 as %2 to entry %3.")
+               .arg(attachmentPath, attachmentName, entryPath)
+        << endl;
     return EXIT_SUCCESS;
 }

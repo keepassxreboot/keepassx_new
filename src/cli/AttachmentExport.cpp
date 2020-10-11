@@ -24,11 +24,13 @@
 
 #include <QFile>
 
-AttachmentExport::AttachmentExport(FILE* fout) : m_fout(fout)
+AttachmentExport::AttachmentExport(FILE* fout)
+    : m_fout(fout)
 {
     name = QString("attachment-export");
     description = QObject::tr("Export an attachment of an entry.");
-    positionalArguments.append({QString("entry"), QObject::tr("Path of the entry with the target attachment."), QString("")});
+    positionalArguments.append(
+        {QString("entry"), QObject::tr("Path of the entry with the target attachment."), QString("")});
     positionalArguments.append({QString("name"), QObject::tr("Name of the attachment to be exported."), QString("")});
 }
 
@@ -62,8 +64,8 @@ int AttachmentExport::executeWithDatabase(QSharedPointer<Database> database, QSh
     // which defaults to stdout but can be changed for testing.
     QFile out;
     if (!out.open(m_fout, QIODevice::Append)) {
-       err << QObject::tr("Could not open stdout.") << endl;
-       return EXIT_FAILURE;
+        err << QObject::tr("Could not open stdout.") << endl;
+        return EXIT_FAILURE;
     }
 
     const QByteArray attachment = attachments->value(attachmentName);
