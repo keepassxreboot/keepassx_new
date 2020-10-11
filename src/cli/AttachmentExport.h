@@ -18,14 +18,21 @@
 #ifndef KEEPASSXC_ATTACHMENTGROUP_H
 #define KEEPASSXC_ATTACHMENTGROUP_H
 
+#include <cstdio>
+
 #include "DatabaseCommand.h"
+
+#include <QFile>
 
 class AttachmentExport : public DatabaseCommand
 {
 public:
-    AttachmentExport();
+    AttachmentExport(FILE* fout = stdout);
 
     int executeWithDatabase(QSharedPointer<Database> db, QSharedPointer<QCommandLineParser> parser) override;
+
+private:
+    FILE* m_fout;
 };
 
 #endif // KEEPASSXC_ATTACHMENTGROUP_H

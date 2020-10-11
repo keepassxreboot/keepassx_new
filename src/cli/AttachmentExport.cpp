@@ -24,7 +24,7 @@
 
 #include <QFile>
 
-AttachmentExport::AttachmentExport()
+AttachmentExport::AttachmentExport(FILE* fout) : m_fout(fout)
 {
     name = QString("attachment-export");
     description = QObject::tr("Export an attachment of an entry.");
@@ -53,10 +53,17 @@ int AttachmentExport::executeWithDatabase(QSharedPointer<Database> database, QSh
         return EXIT_FAILURE;
     }
 
+    // Can't use Utils::STDOUT here because it is a QTextStream and we need to output a QByteArray.
+    // Writing to the underlying QIODevice (QTextStream::device) does not work either because
+    // QIODevice lacks the ability to flush while QTextStream::flush only flushes if the writeBuffer
+    // contains content which it does not because we would be using the underlying QIODevice.
+    //
+    // Using the stdout directly would make the code hard to test so we instead introduce m_fout
+    // which defaults to stdout but can be changed for testing.
     QFile out;
-    if (!out.open(stdout, QIODevice::WriteOnly)) {
-        err << QObject::tr("Could not open stdout.") << endl;
-        return EXIT_FAILURE;
+    if (!out.open(m_fout, QIODevice::Append)) {
+       err << QObject::tr("Could not open stdout.") << endl;
+       return EXIT_FAILURE;
     }
 
     const QByteArray attachment = attachments->value(attachmentName);
