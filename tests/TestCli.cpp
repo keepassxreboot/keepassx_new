@@ -482,9 +482,7 @@ void TestCli::testAttachmentExport()
     // returning an empty string if it were to be initialized using stdout(&out).
     QFile check(out.fileName());
     QVERIFY(check.open(QIODevice::ReadOnly));
-
-    QTextStream outStream(&check);
-    QCOMPARE(outStream.readAll(), QByteArray("Sample content\n"));
+    QCOMPARE(check.readAll(), QByteArray("Sample content\n"));
 }
 
 void TestCli::testAttachmentImport()
