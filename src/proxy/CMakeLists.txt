@@ -39,7 +39,7 @@ if(WITH_XC_BROWSER)
                 COMMENT "Deploying keepassxc-proxy")
     endif()
 
-    if(MINGW)
+    if(WIN32)
       target_link_libraries(keepassxc-proxy Wtsapi32.lib Ws2_32.lib)
     endif()
 endif()

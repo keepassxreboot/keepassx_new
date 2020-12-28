@@ -25,9 +25,9 @@
 
 #ifdef Q_OS_WIN
 #include <fcntl.h>
-#include <winsock2.h>
-
+#include <io.h>
 #include <windows.h>
+#include <winsock2.h>
 #else
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -49,8 +49,13 @@ NativeMessagingProxy::NativeMessagingProxy()
 void NativeMessagingProxy::setupStandardInput()
 {
 #ifdef Q_OS_WIN
+#ifdef Q_CC_MSVC
+    _setmode(_fileno(stdin), _O_BINARY);
+    _setmode(_fileno(stdout), _O_BINARY);
+#else
     setmode(fileno(stdin), _O_BINARY);
     setmode(fileno(stdout), _O_BINARY);
+#endif
 #endif
 
     QtConcurrent::run([this] {

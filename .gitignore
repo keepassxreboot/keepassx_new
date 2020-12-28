@@ -21,3 +21,6 @@ desktop.ini
 /*.snap
 /*_source.tar.bz2
 
+# MSVC Files
+CMakeSettings.json
+.vs/

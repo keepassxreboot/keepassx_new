@@ -18,4 +18,5 @@ set(qrcode_SOURCES
 )
 
 add_library(qrcode STATIC ${qrcode_SOURCES})
+target_include_directories(qrcode PRIVATE ${QRENCODE_INCLUDE_DIR})
 target_link_libraries(qrcode Qt5::Core Qt5::Widgets Qt5::Svg ${QRENCODE_LIBRARY})
