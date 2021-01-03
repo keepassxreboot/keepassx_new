@@ -26,6 +26,10 @@
 #include "keys/PasswordKey.h"
 #include <QtCore/qglobal.h>
 
+#ifdef WITH_XC_LEDGER
+#include "keys/LedgerKey.h"
+#endif
+
 namespace Utils
 {
     extern QTextStream STDOUT;
@@ -44,7 +48,12 @@ namespace Utils
                                             const bool isPasswordProtected = true,
                                             const QString& keyFilename = {},
                                             const QString& yubiKeySlot = {},
+                                            const QString& ledgerKey = {},
                                             bool quiet = false);
+
+#ifdef WITH_XC_LEDGER
+    bool loadLedgerKey(const QString& ledgerKey, QSharedPointer<LedgerKey>& out, QString& errMsg, bool quiet);
+#endif
 
     QStringList splitCommandString(const QString& command);
 

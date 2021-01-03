@@ -48,6 +48,13 @@ const QCommandLineOption Create::SetPasswordOption =
                                      << "set-password",
                        QObject::tr("Set a password for the database."));
 
+#ifdef WITH_XC_LEDGER
+const QCommandLineOption Create::SetLedgerOption =
+    QCommandLineOption(QStringList() << "ledger",
+                       QObject::tr("Ledger slot or name used to access the database (e.g., slot:0, name:personal)."),
+                       QObject::tr("(slot:id|name:string)"));
+#endif
+
 Create::Create()
 {
     name = QString("db-create");
@@ -55,6 +62,9 @@ Create::Create()
     positionalArguments.append({QString("database"), QObject::tr("Path of the database."), QString("")});
     options.append(Create::SetKeyFileOption);
     options.append(Create::SetPasswordOption);
+#ifdef WITH_XC_LEDGER
+    options.append(Create::SetLedgerOption);
+#endif
     options.append(Create::DecryptionTimeOption);
 }
 
@@ -64,7 +74,8 @@ QSharedPointer<Database> Create::initializeDatabaseFromOptions(const QSharedPoin
         return {};
     }
 
-    auto& out = parser->isSet(Command::QuietOption) ? Utils::DEVNULL : Utils::STDOUT;
+    const bool quiet = parser->isSet(Command::QuietOption);
+    auto& out = quiet ? Utils::DEVNULL : Utils::STDOUT;
     auto& err = Utils::STDERR;
 
     // Validate the decryption time before asking for a password.
@@ -107,6 +118,18 @@ QSharedPointer<Database> Create::initializeDatabaseFromOptions(const QSharedPoin
             key->addKey(fileKey);
         }
     }
+
+#ifdef WITH_XC_LEDGER
+    if (parser->isSet(Create::SetLedgerOption)) {
+        QSharedPointer<LedgerKey> ledgerKey;
+        QString errMsg;
+        if (!Utils::loadLedgerKey(parser->value(Create::SetLedgerOption), ledgerKey, errMsg, quiet)) {
+            err << QObject::tr("Loading the ledger key failed: ") << errMsg << endl;
+            return {};
+        }
+        key->addKey(ledgerKey);
+    }
+#endif
 
     if (key->isEmpty()) {
         err << QObject::tr("No key is set. Aborting database creation.") << endl;

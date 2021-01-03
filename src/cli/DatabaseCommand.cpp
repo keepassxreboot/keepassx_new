@@ -27,6 +27,9 @@ DatabaseCommand::DatabaseCommand()
 #ifdef WITH_XC_YUBIKEY
     options.append(Command::YubiKeyOption);
 #endif
+#ifdef WITH_XC_LEDGER
+    options.append(Command::LedgerOption);
+#endif
 }
 
 int DatabaseCommand::execute(const QStringList& arguments)
@@ -54,6 +57,11 @@ int DatabaseCommand::execute(const QStringList& arguments)
                                    parser->value(Command::KeyFileOption),
 #ifdef WITH_XC_YUBIKEY
                                    parser->value(Command::YubiKeyOption),
+#else
+                                   "",
+#endif
+#ifdef WITH_XC_LEDGER
+                                   parser->value(Command::LedgerOption),
 #else
                                    "",
 #endif

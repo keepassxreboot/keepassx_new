@@ -21,6 +21,11 @@
 #include "keys/YkChallengeResponseKeyCLI.h"
 #endif
 
+#ifdef WITH_XC_LEDGER
+#include "keys/LedgerKey.h"
+#include "keys/drivers/LedgerHardwareKey.h"
+#endif
+
 #ifdef Q_OS_WIN
 #include <windows.h>
 #else
@@ -94,6 +99,7 @@ namespace Utils
                                             const bool isPasswordProtected,
                                             const QString& keyFilename,
                                             const QString& yubiKeySlot,
+                                            const QString& ledgerKey,
                                             bool quiet)
     {
         auto& err = quiet ? DEVNULL : STDERR;
@@ -172,6 +178,20 @@ namespace Utils
 #else
         Q_UNUSED(yubiKeySlot);
 #endif // WITH_XC_YUBIKEY
+
+#ifdef WITH_XC_LEDGER
+        if (!ledgerKey.isEmpty()) {
+            QSharedPointer<LedgerKey> key;
+            QString errMsg;
+            if (!loadLedgerKey(ledgerKey, key, errMsg, quiet)) {
+                err << QObject::tr("Unable to load key from ledger device: ") << errMsg << "." << endl;
+                return {};
+            }
+            compositeKey->addKey(key);
+        }
+#else
+        Q_UNUSED(ledgerKey);
+#endif
 
         auto db = QSharedPointer<Database>::create();
         QString error;
@@ -404,4 +424,55 @@ namespace Utils
 
         return true;
     }
+
+#ifdef WITH_XC_LEDGER
+    bool initLedgerKey()
+    {
+        auto& Hardware = LedgerHardwareKey::instance();
+        QFuture<bool> Ret = Hardware.findDevices();
+        Ret.waitForFinished();
+        return Ret.result();
+    }
+
+    bool loadLedgerKey(const QString& ledgerKey, QSharedPointer<LedgerKey>& out, QString& errMsg, bool quiet)
+    {
+        // Format:
+        // * slot:XX, to use a key on a slot
+        // * name:str, to derive the key from a user-given name
+        auto& err = quiet ? DEVNULL : STDERR;
+        QStringList Parts = ledgerKey.split(':');
+        if (Parts.size() != 2) {
+            return false;
+        }
+        if (!initLedgerKey()) {
+            return false;
+        }
+        auto Devices = LedgerHardwareKey::instance().foundDevices();
+        if (Devices.size() == 0) {
+            return false;
+        }
+        auto& DevInfo = Devices[0];
+        auto& Dev = *DevInfo.Dev;
+        QString Type = Parts[0];
+        QString Value = Parts[1];
+        QString AcceptMsg =
+            QObject::tr("Please accept accessing the database key on the Ledger device '%1'").arg(DevInfo.Name);
+        if (Type == "slot") {
+            bool ok;
+            int Slot = Value.toInt(&ok);
+            if (!ok || Slot < 0) {
+                return false;
+            }
+            err << AcceptMsg << "\n" << flush;
+            out = LedgerKey::fromDeviceSlot(Dev, Slot, errMsg);
+            return !out.isNull();
+        }
+        if (Type == "name") {
+            err << AcceptMsg << "\n" << flush;
+            out = LedgerKey::fromDeviceDeriveName(Dev, Value, errMsg);
+            return !out.isNull();
+        }
+        return false;
+    }
+#endif
 } // namespace Utils

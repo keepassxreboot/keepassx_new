@@ -77,7 +77,7 @@ private:
     const QPointer<QWidget> m_additionalKeyOptions;
     const QPointer<PasswordEditWidget> m_passwordEditWidget;
     const QPointer<KeyFileEditWidget> m_keyFileEditWidget;
-#ifdef WITH_XC_YUBIKEY
+#if defined(WITH_XC_YUBIKEY) || defined(WITH_XC_LEDGER)
     const QPointer<YubiKeyEditWidget> m_yubiKeyEditWidget;
 #endif
 };

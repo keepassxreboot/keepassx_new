@@ -58,6 +58,7 @@ public:
     static const QCommandLineOption KeyFileOption;
     static const QCommandLineOption NoPasswordOption;
     static const QCommandLineOption YubiKeyOption;
+    static const QCommandLineOption LedgerOption;
 };
 
 namespace Commands

@@ -45,6 +45,10 @@ const QCommandLineOption Merge::DryRunOption =
 const QCommandLineOption Merge::YubiKeyFromOption(QStringList() << "yubikey-from",
                                                   QObject::tr("Yubikey slot for the second database."),
                                                   QObject::tr("slot"));
+const QCommandLineOption Merge::LedgerKeyFromOption(QStringList() << "ledgerkey-from",
+                                                    QObject::tr("Ledger key for the second database."),
+                                                    QObject::tr("(slot:id|name:str)"));
+
 Merge::Merge()
 {
     name = QString("merge");
@@ -75,6 +79,7 @@ int Merge::executeWithDatabase(QSharedPointer<Database> database, QSharedPointer
                                     !parser->isSet(Merge::NoPasswordFromOption),
                                     parser->value(Merge::KeyFileFromOption),
                                     parser->value(Merge::YubiKeyFromOption),
+                                    parser->value(Merge::LedgerKeyFromOption),
                                     parser->isSet(Command::QuietOption));
         if (!db2) {
             return EXIT_FAILURE;

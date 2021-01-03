@@ -185,6 +185,7 @@ set(keepassx_SOURCES
         keys/PasswordKey.cpp
         keys/YkChallengeResponseKey.cpp
         keys/YkChallengeResponseKeyCLI.cpp
+        keys/LedgerKey.cpp 
         streams/HashedBlockStream.cpp
         streams/HmacBlockStream.cpp
         streams/LayeredStream.cpp
@@ -228,6 +229,7 @@ add_feature_info(KeePassXC-Browser WITH_XC_BROWSER "Browser integration with Kee
 add_feature_info(SSHAgent WITH_XC_SSHAGENT "SSH agent integration compatible with KeeAgent")
 add_feature_info(KeeShare WITH_XC_KEESHARE "Sharing integration with KeeShare (requires quazip5 for secure containers)")
 add_feature_info(YubiKey WITH_XC_YUBIKEY "YubiKey HMAC-SHA1 challenge-response")
+add_feature_info(Ledger WITH_XC_LEDGER "Ledger key storage/derivation")
 add_feature_info(UpdateCheck WITH_XC_UPDATECHECK "Automatic update checking")
 if(UNIX AND NOT APPLE)
     add_feature_info(FdoSecrets WITH_XC_FDOSECRETS "Implement freedesktop.org Secret Storage Spec server side API.")
@@ -290,6 +292,12 @@ else()
     list(APPEND keepassx_SOURCES keys/drivers/YubiKey.h keys/drivers/YubiKeyStub.cpp)
 endif()
 
+if(WITH_XC_LEDGER)
+    list(APPEND keepassx_SOURCES keys/drivers/LedgerHardwareKey.cpp)
+else()
+  list(APPEND keepassx_SOURCES keys/drivers/LedgerHardwareKey.h keys/drivers/LedgerHardwareKeyStub.cpp)
+endif()
+
 if(WITH_XC_NETWORKING)
     list(APPEND keepassx_SOURCES
             core/HibpDownloader.cpp
@@ -330,6 +338,10 @@ target_link_libraries(keepassx_core
         ${ARGON2_LIBRARIES}
         ${ZLIB_LIBRARIES}
 	)
+
+if(WITH_XC_LEDGER)
+  target_link_libraries(keepassx_core kpl)
+endif()
 
 if(WITH_XC_SSHAGENT)
   target_link_libraries(keepassx_core sshagent)

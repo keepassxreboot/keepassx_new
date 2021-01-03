@@ -49,6 +49,7 @@ option(WITH_XC_AUTOTYPE "Include Auto-Type." ON)
 option(WITH_XC_NETWORKING "Include networking code (e.g. for downloading website icons)." OFF)
 option(WITH_XC_BROWSER "Include browser integration with keepassxc-browser." OFF)
 option(WITH_XC_YUBIKEY "Include YubiKey support." OFF)
+option(WITH_XC_LEDGER "Include Ledger Nano/Blue support." OFF)
 option(WITH_XC_SSHAGENT "Include SSH agent support." OFF)
 option(WITH_XC_KEESHARE "Sharing integration with KeeShare (requires quazip5 for secure containers)" OFF)
 option(WITH_XC_UPDATECHECK "Include automatic update checks; disable for controlled distributions" ON)
@@ -459,6 +460,10 @@ if(WITH_XC_YUBIKEY)
     find_package(YubiKey REQUIRED)
 
     include_directories(SYSTEM ${YUBIKEY_INCLUDE_DIRS})
+endif()
+
+if(WITH_XC_LEDGER)
+    find_package(kpl REQUIRED)
 endif()
 
 if(UNIX)

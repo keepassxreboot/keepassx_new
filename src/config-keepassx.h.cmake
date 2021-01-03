@@ -16,6 +16,7 @@
 #cmakedefine WITH_XC_NETWORKING
 #cmakedefine WITH_XC_BROWSER
 #cmakedefine WITH_XC_YUBIKEY
+#cmakedefine WITH_XC_LEDGER
 #cmakedefine WITH_XC_SSHAGENT
 #cmakedefine WITH_XC_KEESHARE
 #cmakedefine WITH_XC_KEESHARE_INSECURE

@@ -19,6 +19,7 @@
 #include "DatabaseOpenWidget.h"
 #include "ui_DatabaseOpenWidget.h"
 
+#include "core/AsyncTask.h"
 #include "core/Config.h"
 #include "core/Database.h"
 #include "crypto/Random.h"
@@ -28,8 +29,10 @@
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
 #include "keys/FileKey.h"
+#include "keys/LedgerKey.h"
 #include "keys/PasswordKey.h"
 #include "keys/YkChallengeResponseKey.h"
+#include "keys/drivers/LedgerHardwareKey.h"
 #include "touchid/TouchID.h"
 
 #include "config-keepassx.h"
@@ -37,6 +40,11 @@
 #include <QDesktopServices>
 #include <QFont>
 #include <QSharedPointer>
+
+#ifdef WITH_XC_LEDGER
+#define LEDGER_COMBO_TYPE_NAME_IDX 0
+#define LEDGER_COMBO_TYPE_SLOT_IDX 1
+#endif
 
 namespace
 {
@@ -76,13 +84,17 @@ DatabaseOpenWidget::DatabaseOpenWidget(QWidget* parent)
     m_ui->keyFileLabelHelp->setIcon(icons()->icon("system-help").pixmap(QSize(12, 12)));
     connect(m_ui->keyFileLabelHelp, SIGNAL(clicked(bool)), SLOT(openKeyFileHelp()));
 
-#ifdef WITH_XC_YUBIKEY
-    m_ui->hardwareKeyProgress->setVisible(false);
+#if defined(WITH_XC_YUBIKEY) || defined(WITH_XC_LEDGER)
+    showHardwareWidgets(true);
     QSizePolicy sp = m_ui->hardwareKeyProgress->sizePolicy();
     sp.setRetainSizeWhenHidden(true);
     m_ui->hardwareKeyProgress->setSizePolicy(sp);
-
     connect(m_ui->buttonRedetectYubikey, SIGNAL(clicked()), SLOT(pollHardwareKey()));
+#else
+    showHardwareWidgets(false);
+#endif
+
+#ifdef WITH_XC_YUBIKEY
     connect(YubiKey::instance(), SIGNAL(detectComplete(bool)), SLOT(hardwareKeyResponse(bool)), Qt::QueuedConnection);
 
     connect(YubiKey::instance(), &YubiKey::userInteractionRequest, this, [this] {
@@ -94,12 +106,45 @@ DatabaseOpenWidget::DatabaseOpenWidget(QWidget* parent)
         }
     });
     connect(YubiKey::instance(), &YubiKey::challengeCompleted, this, [this] { m_ui->messageWidget->hide(); });
-#else
-    m_ui->hardwareKeyLabel->setVisible(false);
-    m_ui->hardwareKeyLabelHelp->setVisible(false);
-    m_ui->buttonRedetectYubikey->setVisible(false);
-    m_ui->challengeResponseCombo->setVisible(false);
-    m_ui->hardwareKeyProgress->setVisible(false);
+#endif
+
+#ifdef WITH_XC_LEDGER
+    connect(&LedgerHardwareKey::instance(),
+            SIGNAL(detectComplete(bool)),
+            this,
+            SLOT(hardwareKeyResponse(bool)),
+            Qt::QueuedConnection);
+
+    connect(
+        &LedgerHardwareKey::instance(),
+        &LedgerHardwareKey::userInteractionRequest,
+        this,
+        [this] {
+            m_ui->messageWidget->showMessage(tr("Please accept accessing the database key on your Ledger device."),
+                                             MessageWidget::Information,
+                                             MessageWidget::DisableAutoHide);
+        },
+        Qt::UniqueConnection);
+    connect(
+        &LedgerHardwareKey::instance(),
+        &LedgerHardwareKey::userInteractionDone,
+        this,
+        [this](bool Accepted, QString Err) {
+            if (!Accepted) {
+                m_ui->messageWidget->showMessage(
+                    tr("Unable to access the hardware key: ") + Err, MessageWidget::Warning, 2000);
+            } else {
+                m_ui->messageWidget->hide();
+            }
+        },
+        Qt::UniqueConnection);
+
+    connect(m_ui->ledgerKeyTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
+        updateLedgerWidgets();
+    });
+    connect(m_ui->challengeResponseCombo, SIGNAL(currentIndexChanged(int)), SLOT(hardwareKeySelected(int)));
+
+    m_ui->ledgerKeyLineEdit->setMaxLength(LedgerHardwareKey::maxNameSize());
 #endif
 
 #ifndef WITH_XC_TOUCHID
@@ -113,6 +158,63 @@ DatabaseOpenWidget::DatabaseOpenWidget(QWidget* parent)
 
 DatabaseOpenWidget::~DatabaseOpenWidget()
 {
+}
+
+void DatabaseOpenWidget::showHardwareWidgets(bool show)
+{
+    m_ui->hardwareKeyLabel->setVisible(show);
+    m_ui->hardwareKeyLabelHelp->setVisible(show);
+    m_ui->buttonRedetectYubikey->setVisible(show);
+    m_ui->challengeResponseCombo->setVisible(show);
+    m_ui->hardwareKeyProgress->setVisible(show);
+    showLedgerWidgets(false);
+}
+
+void DatabaseOpenWidget::hardwareKeySelected(int index)
+{
+    QVariant Data = m_ui->challengeResponseCombo->itemData(index);
+    if (!Data.canConvert<QSharedPointer<kpl::LedgerDevice>>()) {
+        showLedgerWidgets(false);
+        return;
+    }
+    // Get slots
+    auto Dev = Data.value<QSharedPointer<kpl::LedgerDevice>>();
+    QVector<uint8_t> Slots;
+    QString Err;
+    m_ui->ledgerKeySlotCombo->setEnabled(false);
+    const bool Success = AsyncTask::runAndWaitForFuture(
+        [&] { return LedgerHardwareKey::instance().getValidKeySlots(*Dev, Slots, Err); });
+    if (!Success) {
+        m_ui->messageWidget->showMessage("Ledger key error: " + Err, MessageWidget::MessageType::Error);
+        return;
+    }
+    m_ui->ledgerKeySlotCombo->setEnabled(true);
+    QComboBox* slotCombo = m_ui->ledgerKeySlotCombo;
+    slotCombo->clear();
+    slotCombo->addItem(tr("Select a slot..."));
+    for (int Slot : Slots) {
+        slotCombo->addItem(QString("# %1").arg(Slot), QVariant{Slot});
+    }
+    showLedgerWidgets(true);
+}
+
+void DatabaseOpenWidget::updateLedgerWidgets()
+{
+#ifdef WITH_XC_LEDGER
+    const int idx = m_ui->ledgerKeyTypeCombo->currentIndex();
+    switch (idx) {
+    case LEDGER_COMBO_TYPE_SLOT_IDX:
+        m_ui->ledgerKeyLineEdit->setVisible(false);
+        m_ui->ledgerKeySlotCombo->setVisible(true);
+        break;
+    case LEDGER_COMBO_TYPE_NAME_IDX:
+        m_ui->ledgerKeyLineEdit->setVisible(true);
+        m_ui->ledgerKeySlotCombo->setVisible(false);
+        break;
+    default:
+        break;
+    }
+#endif
 }
 
 void DatabaseOpenWidget::showEvent(QShowEvent* event)
@@ -331,17 +433,54 @@ QSharedPointer<CompositeKey> DatabaseOpenWidget::buildDatabaseKey()
 #ifdef WITH_XC_YUBIKEY
     auto lastChallengeResponse = config()->get(Config::LastChallengeResponse).toHash();
     lastChallengeResponse.remove(m_filename);
+#endif
 
+#if defined(WITH_XC_YUBIKEY) or defined(WITH_XC_LEDGER)
     int selectionIndex = m_ui->challengeResponseCombo->currentIndex();
     if (selectionIndex > 0) {
-        auto slot = m_ui->challengeResponseCombo->itemData(selectionIndex).value<YubiKeySlot>();
-        auto crKey = QSharedPointer<YkChallengeResponseKey>(new YkChallengeResponseKey(slot));
-        databaseKey->addChallengeResponseKey(crKey);
+        QVariant varslot = m_ui->challengeResponseCombo->itemData(selectionIndex);
+#ifdef WITH_XC_YUBIKEY
+        if (varslot.canConvert<YubiKeySlot>()) {
+            auto slot = varslot.value<YubiKeySlot>();
+            auto crKey = QSharedPointer<YkChallengeResponseKey>(new YkChallengeResponseKey(slot));
+            databaseKey->addChallengeResponseKey(crKey);
 
-        // Qt doesn't read custom types in settings so stuff into a QString
-        lastChallengeResponse.insert(m_filename, QStringLiteral("%1:%2").arg(slot.first).arg(slot.second));
+            // Qt doesn't read custom types in settings so stuff into a QString
+            lastChallengeResponse.insert(m_filename, QStringLiteral("%1:%2").arg(slot.first).arg(slot.second));
+        }
+#endif
+#ifdef WITH_XC_LEDGER
+        if (varslot.canConvert<QSharedPointer<kpl::LedgerDevice>>()) {
+            auto Dev = varslot.value<QSharedPointer<kpl::LedgerDevice>>();
+            const auto Type = m_ui->ledgerKeyTypeCombo->currentIndex();
+            QSharedPointer<LedgerKey> Key;
+            QString Err;
+            if (Type == LEDGER_COMBO_TYPE_NAME_IDX) {
+                QString SKey = m_ui->ledgerKeyLineEdit->text();
+                if (!SKey.isEmpty()) {
+                    Key = LedgerKey::fromDeviceDeriveName(*Dev, SKey, Err);
+                }
+            } else {
+                const int idx = m_ui->ledgerKeySlotCombo->currentIndex();
+                if (idx > 0) {
+                    QVariant Slot = m_ui->ledgerKeySlotCombo->itemData(idx);
+                    Key = LedgerKey::fromDeviceSlot(*Dev, Slot.toUInt(), Err);
+                }
+            }
+            if (Key.isNull()) {
+                if (!Err.isEmpty()) {
+                    m_ui->messageWidget->showMessage(
+                        tr("Unable to access the hardware key: ") + Err, MessageWidget::Warning, 2000);
+                }
+            } else {
+                databaseKey->addKey(Key);
+            }
+        }
+#endif
     }
+#endif
 
+#ifdef WITH_XC_YUBIKEY
     if (config()->get(Config::RememberLastKeyFiles).toBool()) {
         config()->set(Config::LastChallengeResponse, lastChallengeResponse);
     }
@@ -397,22 +536,42 @@ void DatabaseOpenWidget::pollHardwareKey()
     m_pollingHardwareKey = true;
 
     YubiKey::instance()->findValidKeys();
+    LedgerHardwareKey::instance().findDevices();
 }
 
-void DatabaseOpenWidget::hardwareKeyResponse(bool found)
+void DatabaseOpenWidget::showLedgerWidgets(bool show)
 {
+    if (!show) {
+        m_ui->ledgerKeyTypeCombo->setVisible(false);
+        m_ui->ledgerKeyLineEdit->setVisible(false);
+        m_ui->ledgerKeySlotCombo->setVisible(false);
+    } else {
+        m_ui->ledgerKeyTypeCombo->setVisible(true);
+        updateLedgerWidgets();
+    }
+}
+
+void DatabaseOpenWidget::hardwareKeyResponse(bool)
+{
+    m_pollingHardwareKey = false;
+
     m_ui->challengeResponseCombo->clear();
     m_ui->buttonRedetectYubikey->setEnabled(true);
     m_ui->hardwareKeyProgress->setVisible(false);
-    m_pollingHardwareKey = false;
 
-    if (!found) {
+    const auto YubiKeys = YubiKey::instance()->foundKeys();
+    const auto LedgerKeys = LedgerHardwareKey::instance().foundDevices();
+
+    if (YubiKeys.empty() && LedgerKeys.empty()) {
         m_ui->challengeResponseCombo->addItem(tr("No hardware keys detected"));
         m_ui->challengeResponseCombo->setEnabled(false);
         return;
-    } else {
-        m_ui->challengeResponseCombo->addItem(tr("Select hardware key…"));
     }
+
+    // Remove this connection in order not to have one call to hardwareKeySelected per item added.
+    disconnect(m_ui->challengeResponseCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(hardwareKeySelected(int)));
+
+    m_ui->challengeResponseCombo->addItem(tr("Select hardware key…"));
 
     YubiKeySlot lastUsedSlot;
     if (config()->get(Config::RememberLastKeyFiles).toBool()) {
@@ -427,7 +586,7 @@ void DatabaseOpenWidget::hardwareKeyResponse(bool found)
     }
 
     int selectedIndex = 0;
-    for (auto& slot : YubiKey::instance()->foundKeys()) {
+    for (auto& slot : YubiKeys) {
         // add detected YubiKey to combo box
         m_ui->challengeResponseCombo->addItem(YubiKey::instance()->getDisplayName(slot), QVariant::fromValue(slot));
         // Select this YubiKey + Slot if we used it in the past
@@ -435,9 +594,17 @@ void DatabaseOpenWidget::hardwareKeyResponse(bool found)
             selectedIndex = m_ui->challengeResponseCombo->count() - 1;
         }
     }
+    if (!LedgerKeys.empty() && !YubiKeys.empty()) {
+        m_ui->challengeResponseCombo->insertSeparator(m_ui->challengeResponseCombo->count());
+    }
+    for (auto const& key : LedgerKeys) {
+        m_ui->challengeResponseCombo->addItem(key.Name, QVariant::fromValue(key.Dev));
+    }
 
     m_ui->challengeResponseCombo->setCurrentIndex(selectedIndex);
     m_ui->challengeResponseCombo->setEnabled(true);
+    connect(m_ui->challengeResponseCombo, SIGNAL(currentIndexChanged(int)), SLOT(hardwareKeySelected(int)));
+    hardwareKeySelected(selectedIndex);
 }
 
 void DatabaseOpenWidget::openHardwareKeyHelp()

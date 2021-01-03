@@ -31,6 +31,7 @@ public:
     static const QCommandLineOption KeyFileFromOption;
     static const QCommandLineOption NoPasswordFromOption;
     static const QCommandLineOption YubiKeyFromOption;
+    static const QCommandLineOption LedgerKeyFromOption;
     static const QCommandLineOption DryRunOption;
 };
 

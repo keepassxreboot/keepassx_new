@@ -19,13 +19,17 @@
 #define KEEPASSXC_YUBIKEYEDITWIDGET_H
 
 #include "KeyComponentWidget.h"
+#include <QMessageBox>
+#include <QMutex>
 #include <QPointer>
+#include <QSharedPointer>
 
 namespace Ui
 {
     class YubiKeyEditWidget;
 }
 
+class LedgerKey;
 class YkChallengeResponseKey;
 
 class YubiKeyEditWidget : public KeyComponentWidget
@@ -46,11 +50,18 @@ protected:
 
 private slots:
     void hardwareKeyResponse(bool found);
-    void pollYubikey();
+    void pollHardwareKey();
+    void hardwareKeySelected(int index);
 
 private:
+    void updateLedgerWidgets();
+    void showLedgerWidgets(bool show);
+
     const QScopedPointer<Ui::YubiKeyEditWidget> m_compUi;
     QPointer<QWidget> m_compEditWidget;
+    QMutex m_mutexList;
+    QMessageBox* m_msgBox;
+    mutable QSharedPointer<LedgerKey> m_ledgerKey;
     bool m_isDetected = false;
 };
 

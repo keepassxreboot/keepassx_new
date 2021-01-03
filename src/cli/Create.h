@@ -30,6 +30,7 @@ public:
 
     static const QCommandLineOption SetKeyFileOption;
     static const QCommandLineOption SetPasswordOption;
+    static const QCommandLineOption SetLedgerOption;
     static const QCommandLineOption DecryptionTimeOption;
 };
 

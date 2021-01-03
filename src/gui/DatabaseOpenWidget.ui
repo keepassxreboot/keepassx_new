@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>588</width>
-    <height>448</height>
+    <width>789</width>
+    <height>537</height>
    </rect>
   </property>
   <property name="accessibleName">
@@ -34,7 +34,7 @@
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -61,7 +61,7 @@
       <widget class="QWidget" name="formContainer" native="true">
        <property name="maximumSize">
         <size>
-         <width>700</width>
+         <width>1200</width>
          <height>16777215</height>
         </size>
        </property>
@@ -110,7 +110,7 @@
          <widget class="QFrame" name="loginFrame">
           <property name="minimumSize">
            <size>
-            <width>550</width>
+            <width>700</width>
             <height>0</height>
            </size>
           </property>
@@ -226,6 +226,42 @@
                   <property name="topMargin">
                    <number>3</number>
                   </property>
+                  <item row="0" column="3">
+                   <layout class="QGridLayout" name="gridLayout_2">
+                    <property name="verticalSpacing">
+                     <number>0</number>
+                    </property>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="keyFileLineEdit">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleName">
+                       <string>Key file to unlock the database</string>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="0" column="4">
+                   <widget class="QPushButton" name="buttonBrowseFile">
+                    <property name="toolTip">
+                     <string>Browse for key file</string>
+                    </property>
+                    <property name="accessibleName">
+                     <string>Browse for key file</string>
+                    </property>
+                    <property name="text">
+                     <string>Browse...</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="0">
                    <layout class="QHBoxLayout" name="horizontalLayout_4">
                     <property name="spacing">
@@ -277,54 +313,6 @@
                     </item>
                    </layout>
                   </item>
-                  <item row="1" column="3">
-                   <layout class="QGridLayout" name="gridLayout">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
-                    <item row="1" column="2">
-                     <widget class="QProgressBar" name="hardwareKeyProgress">
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>2</height>
-                       </size>
-                      </property>
-                      <property name="minimum">
-                       <number>0</number>
-                      </property>
-                      <property name="maximum">
-                       <number>0</number>
-                      </property>
-                      <property name="value">
-                       <number>-1</number>
-                      </property>
-                      <property name="textVisible">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2">
-                     <widget class="QComboBox" name="challengeResponseCombo">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="accessibleName">
-                       <string>Hardware key slot selection</string>
-                      </property>
-                      <property name="editable">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
                   <item row="1" column="0">
                    <layout class="QVBoxLayout" name="verticalLayout_7">
                     <property name="spacing">
@@ -339,9 +327,6 @@
                        <widget class="QLabel" name="hardwareKeyLabel">
                         <property name="text">
                          <string>Hardware Key:</string>
-                        </property>
-                        <property name="buddy">
-                         <cstring>challengeResponseCombo</cstring>
                         </property>
                        </widget>
                       </item>
@@ -400,41 +385,68 @@
                     </item>
                    </layout>
                   </item>
-                  <item row="0" column="3">
-                   <layout class="QGridLayout" name="gridLayout_2">
-                    <property name="verticalSpacing">
+                  <item row="1" column="3">
+                   <layout class="QGridLayout" name="gridLayout">
+                    <property name="spacing">
                      <number>0</number>
                     </property>
-                    <item row="0" column="1">
-                     <widget class="QLineEdit" name="keyFileLineEdit">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
+                    <item row="2" column="3">
+                     <widget class="QComboBox" name="ledgerKeySlotCombo">
+                      <property name="enabled">
+                       <bool>true</bool>
                       </property>
-                      <property name="accessibleName">
-                       <string>Key file to unlock the database</string>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QComboBox" name="ledgerKeyTypeCombo">
+                      <property name="enabled">
+                       <bool>true</bool>
                       </property>
-                      <property name="clearButtonEnabled">
+                      <item>
+                       <property name="text">
+                        <string>Name</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Slot</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QProgressBar" name="hardwareKeyProgress">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>2</height>
+                       </size>
+                      </property>
+                      <property name="minimum">
+                       <number>0</number>
+                      </property>
+                      <property name="maximum">
+                       <number>0</number>
+                      </property>
+                      <property name="value">
+                       <number>-1</number>
+                      </property>
+                      <property name="textVisible">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QComboBox" name="challengeResponseCombo"/>
+                    </item>
+                    <item row="2" column="4">
+                     <widget class="QLineEdit" name="ledgerKeyLineEdit">
+                      <property name="enabled">
                        <bool>true</bool>
                       </property>
                      </widget>
                     </item>
                    </layout>
-                  </item>
-                  <item row="0" column="4">
-                   <widget class="QPushButton" name="buttonBrowseFile">
-                    <property name="toolTip">
-                     <string>Browse for key file</string>
-                    </property>
-                    <property name="accessibleName">
-                     <string>Browse for key file</string>
-                    </property>
-                    <property name="text">
-                     <string>Browse...</string>
-                    </property>
-                   </widget>
                   </item>
                   <item row="1" column="4">
                    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -602,7 +614,6 @@
   <tabstop>editPassword</tabstop>
   <tabstop>keyFileLineEdit</tabstop>
   <tabstop>buttonBrowseFile</tabstop>
-  <tabstop>challengeResponseCombo</tabstop>
   <tabstop>buttonRedetectYubikey</tabstop>
   <tabstop>checkTouchID</tabstop>
  </tabstops>

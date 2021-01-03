@@ -76,6 +76,11 @@ const QCommandLineOption Command::YubiKeyOption =
                        QObject::tr("Yubikey slot and optional serial used to access the database (e.g., 1:7370001)."),
                        QObject::tr("slot[:serial]"));
 
+const QCommandLineOption Command::LedgerOption =
+    QCommandLineOption(QStringList() << "ledger",
+                       QObject::tr("Ledger slot or name used to access the database (e.g., slot:0, name:personal)."),
+                       QObject::tr("(slot:id|name:string)"));
+
 namespace
 {
 
