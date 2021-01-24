@@ -26,7 +26,6 @@
 #ifdef Q_OS_WIN
 #include <fcntl.h>
 #include <io.h>
-#include <windows.h>
 #include <winsock2.h>
 #else
 #include <sys/socket.h>
