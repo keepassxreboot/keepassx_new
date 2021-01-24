@@ -328,6 +328,8 @@ if (MSVC)
     if(MSVC_VERSION LESS 1910)
         message(FATAL_ERROR "Only Microsoft Visual Studio 17 and newer are supported!")
     endif()
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
     add_compile_options(/permissive- /utf-8)
 endif()
 
