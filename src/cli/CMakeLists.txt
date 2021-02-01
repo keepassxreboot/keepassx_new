@@ -17,6 +17,9 @@ set(cli_SOURCES
         Add.cpp
         AddGroup.cpp
         Analyze.cpp
+        AttachmentExport.cpp
+        AttachmentImport.cpp
+        AttachmentRemove.cpp
         Clip.cpp
         Close.cpp
         Create.cpp

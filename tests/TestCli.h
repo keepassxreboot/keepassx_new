@@ -51,6 +51,9 @@ private slots:
     void testAdd();
     void testAddGroup();
     void testAnalyze();
+    void testAttachmentExport();
+    void testAttachmentImport();
+    void testAttachmentRemove();
     void testClip();
     void testCommandParsing_data();
     void testCommandParsing();
