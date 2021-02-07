@@ -18,6 +18,7 @@
 #ifndef KEEPASSX_EDITGROUPWIDGET_H
 #define KEEPASSX_EDITGROUPWIDGET_H
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QScopedPointer>
 #include <QScrollArea>
@@ -32,6 +33,7 @@ class EditWidgetProperties;
 namespace Ui
 {
     class EditGroupWidgetMain;
+    class EditGroupWidgetBrowser;
     class EditWidget;
 } // namespace Ui
 
@@ -47,6 +49,24 @@ public:
     virtual void set(QWidget* widget, Group* tempoaryGroup, QSharedPointer<Database> database) = 0;
     virtual void assign(QWidget* widget) = 0;
 };
+
+#ifdef WITH_XC_BROWSER
+class TristateCheckbox : public QCheckBox
+{
+public:
+    TristateCheckbox(QWidget* parent)
+        : QCheckBox(parent)
+    {
+        setTristate(true);
+    }
+
+    // Allow only Checked and Unchecked when user switches the state
+    void nextCheckState() override
+    {
+        setCheckState(checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+    }
+};
+#endif
 
 class EditGroupWidget : public EditWidget
 {
@@ -70,6 +90,9 @@ private slots:
     void apply();
     void save();
     void cancel();
+#ifdef WITH_XC_BROWSER
+    void updateBrowserModified();
+#endif
 
 private:
     void addTriStateItems(QComboBox* comboBox, bool inheritValue);
@@ -82,6 +105,11 @@ private:
     QPointer<QScrollArea> m_editGroupWidgetMain;
     QPointer<EditWidgetIcons> m_editGroupWidgetIcons;
     QPointer<EditWidgetProperties> m_editWidgetProperties;
+#ifdef WITH_XC_BROWSER
+    bool m_browserSettingsChanged;
+    const QScopedPointer<Ui::EditGroupWidgetBrowser> m_browserUi;
+    QPointer<QWidget> m_browserWidget;
+#endif
 
     QScopedPointer<Group> m_temporaryGroup;
     QPointer<Group> m_group;
