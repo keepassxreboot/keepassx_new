@@ -32,8 +32,10 @@ KeePass1OpenWidget::KeePass1OpenWidget(QWidget* parent)
     m_ui->labelHeadline->setText(tr("Import KeePass1 Database"));
 }
 
-void KeePass1OpenWidget::openDatabase()
+void KeePass1OpenWidget::openDatabase(bool useOsStoredKey)
 {
+    // TODO: implement storing and retrieving os stored key
+    Q_UNUSED(useOsStoredKey)
     KeePass1Reader reader;
 
     QString password;

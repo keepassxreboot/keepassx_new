@@ -236,6 +236,10 @@ if(APPLE)
     add_feature_info(TouchID WITH_XC_TOUCHID "TouchID integration")
 endif()
 
+if(WIN32)
+    add_feature_info(WindowsHello WITH_XC_WINDOWSHELLO "Windows Hello integration")
+endif()
+
 add_subdirectory(browser)
 add_subdirectory(proxy)
 if(WITH_XC_BROWSER)
@@ -306,6 +310,12 @@ if(WITH_XC_TOUCHID)
     set_source_files_properties(touchid/TouchID.mm PROPERTY COMPILE_FLAGS "-Wno-old-style-cast -Wno-error")
 endif()
 
+if(WITH_XC_WINDOWSHELLO)
+    list(APPEND keepassx_SOURCES
+            winhello/WinHelloKeyManager.cpp
+            winhello/WindowsHello.cpp)
+endif()
+
 configure_file(config-keepassx.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-keepassx.h)
 configure_file(git-info.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/git-info.h)
 
@@ -357,6 +367,9 @@ if(UNIX AND NOT APPLE)
 endif()
 if(MINGW)
     target_link_libraries(keepassx_core Wtsapi32.lib Ws2_32.lib)
+    if(WITH_XC_WINDOWSHELLO)
+        target_link_libraries(keepassx_core "Ncrypt.lib")
+    endif()
 endif()
 
 if(MINGW)

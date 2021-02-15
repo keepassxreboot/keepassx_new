@@ -52,7 +52,7 @@ signals:
 protected:
     void showEvent(QShowEvent* event) override;
     void hideEvent(QHideEvent* event) override;
-    QSharedPointer<CompositeKey> buildDatabaseKey();
+    QSharedPointer<CompositeKey> buildDatabaseKey(bool useOsStoredKey);
 
     const QScopedPointer<Ui::DatabaseOpenWidget> m_ui;
     QSharedPointer<Database> m_db;
@@ -60,7 +60,7 @@ protected:
     bool m_retryUnlockWithEmptyPassword = false;
 
 protected slots:
-    virtual void openDatabase();
+    virtual void openDatabase(bool useOsStoredKey = false);
     void reject();
 
 private slots:

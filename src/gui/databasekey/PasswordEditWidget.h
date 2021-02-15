@@ -19,6 +19,7 @@
 #define KEEPASSXC_PASSWORDEDITWIDGET_H
 
 #include "KeyComponentWidget.h"
+#include <QCheckBox>
 #include <QPointer>
 
 namespace Ui
@@ -41,6 +42,10 @@ public:
     bool isEmpty() const;
     bool validate(QString& errorMessage) const override;
 
+    QCheckBox* osStoreKey() {
+        return m_checkOsStoreKey;
+    }
+
 protected:
     QWidget* componentEditWidget() override;
     void initComponentEditWidget(QWidget* widget) override;
@@ -50,6 +55,7 @@ private slots:
     void setPassword(const QString& password);
 
 private:
+    QCheckBox* m_checkOsStoreKey;
     const QScopedPointer<Ui::PasswordEditWidget> m_compUi;
     QPointer<QWidget> m_compEditWidget;
 };

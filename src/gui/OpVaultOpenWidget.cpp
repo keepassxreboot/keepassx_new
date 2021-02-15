@@ -31,8 +31,10 @@ OpVaultOpenWidget::OpVaultOpenWidget(QWidget* parent)
     m_ui->labelHeadline->setText("Import 1Password Database");
 }
 
-void OpVaultOpenWidget::openDatabase()
+void OpVaultOpenWidget::openDatabase(bool useOsStoredKey)
 {
+    // TODO: implement storing and retrieving os stored key
+    Q_UNUSED(useOsStoredKey);
     OpVaultReader reader;
 
     QString password;

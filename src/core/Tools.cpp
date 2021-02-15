@@ -109,6 +109,9 @@ namespace Tools
 #ifdef WITH_XC_TOUCHID
         extensions += "\n- " + QObject::tr("TouchID");
 #endif
+#ifdef WITH_XC_WINDOWSHELLO
+        extensions += "\n- " + QObject::tr("Windows Hello");
+#endif
 #ifdef WITH_XC_FDOSECRETS
         extensions += "\n- " + QObject::tr("Secret Service Integration");
 #endif

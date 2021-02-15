@@ -60,6 +60,7 @@ private slots:
     void markDirty();
 
 private:
+    void updateOsStore();
     void setAdditionalKeyOptionsVisible(bool show);
 
     // clang-format off

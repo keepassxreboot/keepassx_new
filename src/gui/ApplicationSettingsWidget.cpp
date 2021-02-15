@@ -33,6 +33,10 @@
 #include "MessageBox.h"
 #include "touchid/TouchID.h"
 
+#ifdef WITH_XC_WINDOWSHELLO
+#include "winhello/WindowsHello.h"
+#endif
+
 class ApplicationSettingsWidget::ExtraPage
 {
 public:
@@ -140,6 +144,27 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
     m_secUi->privacy->setVisible(false);
     m_generalUi->faviconTimeoutLabel->setVisible(false);
     m_generalUi->faviconTimeoutSpinBox->setVisible(false);
+#endif
+
+m_secUi->winHelloBox->setVisible(false);
+#ifdef WITH_XC_WINDOWSHELLO
+    if(WindowsHello::isAvailable()) {
+        m_secUi->winHelloBox->setVisible(true);
+        connect(m_secUi->winHelloResetButton, &QPushButton::clicked, [this](){
+            auto selectedButton = MessageBox::warning(
+                this,
+                tr("Reset Windows Hello"),
+                tr("You are about to remove all stored database keys\n"
+                   "from Windows Hello storage.\n\n"
+                   "Do you want to continue?"
+                ),
+                MessageBox::Yes | MessageBox::No
+            );
+            if (selectedButton == MessageBox::Yes) {
+                WindowsHello(this).reset();
+            }
+        });
+    }
 #endif
 
 #ifndef WITH_XC_TOUCHID

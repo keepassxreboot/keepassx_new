@@ -28,7 +28,7 @@ public:
     explicit OpVaultOpenWidget(QWidget* parent = nullptr);
 
 protected:
-    void openDatabase() override;
+    void openDatabase(bool useOsStoredKey = false) override;
 };
 
 #endif // KEEPASSXC_OPVAULTOPENWIDGET_H

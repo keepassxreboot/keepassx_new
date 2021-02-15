@@ -28,7 +28,7 @@ public:
     explicit KeePass1OpenWidget(QWidget* parent = nullptr);
 
 protected:
-    void openDatabase() override;
+    void openDatabase(bool useOsStoredKey = false) override;
 };
 
 #endif // KEEPASSX_KEEPASS1OPENWIDGET_H
