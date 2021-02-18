@@ -22,8 +22,8 @@
 #include <QAbstractTableModel>
 #include <QMap>
 
-#include "core/CsvParser.h"
 #include "core/Group.h"
+#include "format/CsvParser.h"
 
 class CsvParserModel : public QAbstractTableModel, public CsvParser
 {

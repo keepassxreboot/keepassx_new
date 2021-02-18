@@ -39,7 +39,6 @@ set(keepassx_SOURCES
         core/Clock.cpp
         core/Compare.cpp
         core/Config.cpp
-        core/CsvParser.cpp
         core/CustomData.cpp
         core/Database.cpp
         core/DatabaseIcons.cpp
@@ -73,6 +72,7 @@ set(keepassx_SOURCES
         crypto/kdf/AesKdf.cpp
         crypto/kdf/Argon2Kdf.cpp
         format/CsvExporter.cpp
+        format/CsvParser.cpp
         format/HtmlExporter.cpp
         format/KeePass1Reader.cpp
         format/KeePass2.cpp
