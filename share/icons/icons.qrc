@@ -40,6 +40,7 @@
         <file>application/scalable/actions/getting-started.svg</file>
         <file>application/scalable/actions/group-delete.svg</file>
         <file>application/scalable/actions/group-edit.svg</file>
+        <file>application/scalable/actions/group-clone.svg</file>
         <file>application/scalable/actions/group-empty-trash.svg</file>
         <file>application/scalable/actions/group-new.svg</file>
         <file>application/scalable/actions/health.svg</file>

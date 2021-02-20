@@ -376,6 +376,7 @@ MainWindow::MainWindow()
 
     m_ui->actionGroupNew->setIcon(icons()->icon("group-new"));
     m_ui->actionGroupEdit->setIcon(icons()->icon("group-edit"));
+    m_ui->actionGroupClone->setIcon(icons()->icon("group-clone"));
     m_ui->actionGroupDelete->setIcon(icons()->icon("group-delete"));
     m_ui->actionGroupEmptyRecycleBin->setIcon(icons()->icon("group-empty-trash"));
     m_ui->actionEntryOpenUrl->setIcon(icons()->icon("web"));
@@ -475,6 +476,7 @@ MainWindow::MainWindow()
 
     m_actionMultiplexer.connect(m_ui->actionGroupNew, SIGNAL(triggered()), SLOT(createGroup()));
     m_actionMultiplexer.connect(m_ui->actionGroupEdit, SIGNAL(triggered()), SLOT(switchToGroupEdit()));
+    m_actionMultiplexer.connect(m_ui->actionGroupClone, SIGNAL(triggered()), SLOT(cloneGroup()));
     m_actionMultiplexer.connect(m_ui->actionGroupDelete, SIGNAL(triggered()), SLOT(deleteGroup()));
     m_actionMultiplexer.connect(m_ui->actionGroupEmptyRecycleBin, SIGNAL(triggered()), SLOT(emptyRecycleBin()));
     m_actionMultiplexer.connect(m_ui->actionGroupSortAsc, SIGNAL(triggered()), SLOT(sortGroupsAsc()));
@@ -798,6 +800,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
                                                       || (singleEntrySelected && dbWidget->currentEntryHasUrl()));
             m_ui->actionGroupNew->setEnabled(groupSelected);
             m_ui->actionGroupEdit->setEnabled(groupSelected);
+            m_ui->actionGroupClone->setEnabled(groupSelected && dbWidget->canCloneCurrentGroup());
             m_ui->actionGroupDelete->setEnabled(groupSelected && dbWidget->canDeleteCurrentGroup());
             m_ui->actionGroupSortAsc->setEnabled(groupSelected && currentGroupHasChildren);
             m_ui->actionGroupSortDesc->setEnabled(groupSelected && currentGroupHasChildren);
