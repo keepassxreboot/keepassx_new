@@ -44,8 +44,8 @@ public:
     const QString errorString() const;
 
     void setType(const QString& type);
-    void setPublicData(const QList<QByteArray>& data);
-    void setPrivateData(const QList<QByteArray>& data);
+    void setPublicData(const QByteArray& data);
+    void setPrivateData(const QByteArray& data);
     void setComment(const QString& comment);
 
     void clearPrivate();
@@ -70,8 +70,8 @@ private:
 
     QString m_rawType;
     QByteArray m_rawData;
-    QList<QByteArray> m_rawPublicData;
-    QList<QByteArray> m_rawPrivateData;
+    QByteArray m_rawPublicData;
+    QByteArray m_rawPrivateData;
     QString m_comment;
     QString m_error;
 };

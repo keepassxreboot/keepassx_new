@@ -41,8 +41,8 @@ OpenSSHKey::OpenSSHKey(QObject* parent)
     , m_kdfOptions(QByteArray())
     , m_rawType(QString())
     , m_rawData(QByteArray())
-    , m_rawPublicData(QList<QByteArray>())
-    , m_rawPrivateData(QList<QByteArray>())
+    , m_rawPublicData(QByteArray())
+    , m_rawPrivateData(QByteArray())
     , m_comment(QString())
     , m_error(QString())
 {
@@ -89,10 +89,7 @@ const QString OpenSSHKey::fingerprint(QCryptographicHash::Algorithm algo) const
     BinaryStream stream(&publicKey);
 
     stream.writeString(m_type);
-
-    for (const QByteArray& ba : m_rawPublicData) {
-        stream.writeString(ba);
-    }
+    stream.write(m_rawPublicData);
 
     QByteArray rawHash = QCryptographicHash::hash(publicKey, algo);
 
@@ -125,10 +122,7 @@ const QString OpenSSHKey::publicKey() const
     BinaryStream stream(&publicKey);
 
     stream.writeString(m_type);
-
-    for (QByteArray ba : m_rawPublicData) {
-        stream.writeString(ba);
-    }
+    stream.write(m_rawPublicData);
 
     return m_type + " " + QString::fromLatin1(publicKey.toBase64()) + " " + m_comment;
 }
@@ -143,12 +137,12 @@ void OpenSSHKey::setType(const QString& type)
     m_type = type;
 }
 
-void OpenSSHKey::setPublicData(const QList<QByteArray>& data)
+void OpenSSHKey::setPublicData(const QByteArray& data)
 {
     m_rawPublicData = data;
 }
 
-void OpenSSHKey::setPrivateData(const QList<QByteArray>& data)
+void OpenSSHKey::setPrivateData(const QByteArray& data)
 {
     m_rawPrivateData = data;
 }
@@ -439,6 +433,7 @@ bool OpenSSHKey::openKey(const QString& passphrase)
 bool OpenSSHKey::readPublic(BinaryStream& stream)
 {
     m_rawPublicData.clear();
+    BinaryStream rawPublicDataStream(&m_rawPublicData);
 
     if (!stream.readString(m_type)) {
         m_error = tr("Unexpected EOF while reading public key");
@@ -467,7 +462,7 @@ bool OpenSSHKey::readPublic(BinaryStream& stream)
             return false;
         }
 
-        m_rawPublicData.append(t);
+        rawPublicDataStream.writeString(t);
     }
 
     return true;
@@ -476,6 +471,7 @@ bool OpenSSHKey::readPublic(BinaryStream& stream)
 bool OpenSSHKey::readPrivate(BinaryStream& stream)
 {
     m_rawPrivateData.clear();
+    BinaryStream rawPrivateDataStream(&m_rawPrivateData);
 
     if (!stream.readString(m_type)) {
         m_error = tr("Unexpected EOF while reading private key");
@@ -504,7 +500,7 @@ bool OpenSSHKey::readPrivate(BinaryStream& stream)
             return false;
         }
 
-        m_rawPrivateData.append(t);
+        rawPrivateDataStream.writeString(t);
     }
 
     if (!stream.readString(m_comment)) {
@@ -527,11 +523,9 @@ bool OpenSSHKey::writePublic(BinaryStream& stream)
         return false;
     }
 
-    for (QByteArray t : m_rawPublicData) {
-        if (!stream.writeString(t)) {
-            m_error = tr("Unexpected EOF when writing public key");
-            return false;
-        }
+    if (!stream.write(m_rawPublicData)) {
+        m_error = tr("Unexpected EOF when writing public key");
+        return false;
     }
 
     return true;
@@ -549,11 +543,9 @@ bool OpenSSHKey::writePrivate(BinaryStream& stream)
         return false;
     }
 
-    for (QByteArray t : m_rawPrivateData) {
-        if (!stream.writeString(t)) {
-            m_error = tr("Unexpected EOF when writing private key");
-            return false;
-        }
+    if (!stream.write(m_rawPrivateData)) {
+        m_error = tr("Unexpected EOF when writing private key");
+        return false;
     }
 
     if (!stream.writeString(m_comment)) {
