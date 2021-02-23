@@ -430,8 +430,54 @@ bool OpenSSHKey::openKey(const QString& passphrase)
     return false;
 }
 
+bool OpenSSHKey::readKeyParts(BinaryStream& in, const QList<KeyPart> parts, BinaryStream& out)
+{
+    for (auto part : parts) {
+        switch (part) {
+        case STR_PART: {
+            QByteArray t;
+
+            if (!in.readString(t)) {
+                m_error = tr("Unexpected EOF while reading key");
+                return false;
+            }
+
+            out.writeString(t);
+            break;
+        }
+        case UINT8_PART: {
+            quint8 i;
+
+            if (!in.read(i)) {
+                m_error = tr("Unexpected EOF while reading key");
+                return false;
+            }
+
+            out.write(i);
+            break;
+        }
+        default:
+            m_error = tr("Unsupported key part");
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool OpenSSHKey::readPublic(BinaryStream& stream)
 {
+    // clang-format off
+    static const QMap<QString, QList<KeyPart>> keyTemplates {
+        { "ssh-dss",                            {STR_PART, STR_PART, STR_PART, STR_PART} },
+        { "ssh-rsa",                            {STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp256",                {STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp384",                {STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp521",                {STR_PART, STR_PART} },
+        { "ssh-ed25519",                        {STR_PART} },
+    };
+    // clang-format on
+
     m_rawPublicData.clear();
     BinaryStream rawPublicDataStream(&m_rawPublicData);
 
@@ -440,36 +486,27 @@ bool OpenSSHKey::readPublic(BinaryStream& stream)
         return false;
     }
 
-    int keyParts;
-    if (m_type == "ssh-dss") {
-        keyParts = 4;
-    } else if (m_type == "ssh-rsa") {
-        keyParts = 2;
-    } else if (m_type.startsWith("ecdsa-sha2-")) {
-        keyParts = 2;
-    } else if (m_type == "ssh-ed25519") {
-        keyParts = 1;
-    } else {
+    if (!keyTemplates.contains(m_type)) {
         m_error = tr("Unknown key type: %1").arg(m_type);
         return false;
     }
 
-    for (int i = 0; i < keyParts; ++i) {
-        QByteArray t;
-
-        if (!stream.readString(t)) {
-            m_error = tr("Unexpected EOF while reading public key");
-            return false;
-        }
-
-        rawPublicDataStream.writeString(t);
-    }
-
-    return true;
+    return readKeyParts(stream, keyTemplates[m_type], rawPublicDataStream);
 }
 
 bool OpenSSHKey::readPrivate(BinaryStream& stream)
 {
+    // clang-format off
+    static const QMap<QString, QList<KeyPart>> keyTemplates {
+        { "ssh-dss",                            {STR_PART, STR_PART, STR_PART, STR_PART, STR_PART} },
+        { "ssh-rsa",                            {STR_PART, STR_PART, STR_PART, STR_PART, STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp256",                {STR_PART, STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp384",                {STR_PART, STR_PART, STR_PART} },
+        { "ecdsa-sha2-nistp521",                {STR_PART, STR_PART, STR_PART} },
+        { "ssh-ed25519",                        {STR_PART, STR_PART} },
+    };
+    // clang-format on
+
     m_rawPrivateData.clear();
     BinaryStream rawPrivateDataStream(&m_rawPrivateData);
 
@@ -478,29 +515,14 @@ bool OpenSSHKey::readPrivate(BinaryStream& stream)
         return false;
     }
 
-    int keyParts;
-    if (m_type == "ssh-dss") {
-        keyParts = 5;
-    } else if (m_type == "ssh-rsa") {
-        keyParts = 6;
-    } else if (m_type.startsWith("ecdsa-sha2-")) {
-        keyParts = 3;
-    } else if (m_type == "ssh-ed25519") {
-        keyParts = 2;
-    } else {
+    if (!keyTemplates.contains(m_type)) {
         m_error = tr("Unknown key type: %1").arg(m_type);
         return false;
     }
 
-    for (int i = 0; i < keyParts; ++i) {
-        QByteArray t;
-
-        if (!stream.readString(t)) {
-            m_error = tr("Unexpected EOF while reading private key");
-            return false;
-        }
-
-        rawPrivateDataStream.writeString(t);
+    if (!readKeyParts(stream, keyTemplates[m_type], rawPrivateDataStream)) {
+        m_error = tr("Unexpected EOF while reading private key");
+        return false;
     }
 
     if (!stream.readString(m_comment)) {

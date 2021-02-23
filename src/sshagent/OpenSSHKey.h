@@ -60,6 +60,13 @@ public:
     static const QString TYPE_OPENSSH_PRIVATE;
 
 private:
+    enum KeyPart
+    {
+        STR_PART,
+        UINT8_PART
+    };
+    bool readKeyParts(BinaryStream& in, const QList<KeyPart> parts, BinaryStream& out);
+
     bool extractPEM(const QByteArray& in, QByteArray& out);
 
     QString m_type;
