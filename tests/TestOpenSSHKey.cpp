@@ -255,6 +255,80 @@ void TestOpenSSHKey::testParseRSACompare()
     QCOMPARE(oldPrivateKey, newPrivateKey);
 }
 
+void TestOpenSSHKey::testParseECDSA256()
+{
+    const QString keyString = QString("-----BEGIN OPENSSH PRIVATE KEY-----\n"
+                                      "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAaAAAABNlY2RzYS\n"
+                                      "1zaGEyLW5pc3RwMjU2AAAACG5pc3RwMjU2AAAAQQT461x/QlaUUc+H7BxfI5CFXvcMGXA7\n"
+                                      "Wp/U/2sfTMuKWUHumBJyjGM4/wJ9V1EldWp3e4MqH2oztQBDoXNlUsn9AAAAwP2/iHH9v4\n"
+                                      "hxAAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPjrXH9CVpRRz4fs\n"
+                                      "HF8jkIVe9wwZcDtan9T/ax9My4pZQe6YEnKMYzj/An1XUSV1and7gyofajO1AEOhc2VSyf\n"
+                                      "0AAAAhAIS/QBNpB92hLjYQjpfjguDRkRDYqL6mMbNqX9/5o9fsAAAAIm9wZW5zc2hrZXkt\n"
+                                      "dGVzdC1lY2RzYTI1NkBrZWVwYXNzeGMBAgMEBQ==\n"
+                                      "-----END OPENSSH PRIVATE KEY-----\n");
+
+    const QByteArray keyData = keyString.toLatin1();
+
+    OpenSSHKey key;
+    QVERIFY(key.parsePKCS1PEM(keyData));
+    QVERIFY(!key.encrypted());
+    QCOMPARE(key.cipherName(), QString("none"));
+    QCOMPARE(key.type(), QString("ecdsa-sha2-nistp256"));
+    QCOMPARE(key.comment(), QString("opensshkey-test-ecdsa256@keepassxc"));
+    QCOMPARE(key.fingerprint(), QString("SHA256:nwwovZmQbBeiR3GZRpK4OWHgCUE7E0wFtCN7Ng7eX5g"));
+}
+
+void TestOpenSSHKey::testParseECDSA384()
+{
+    const QString keyString = QString("-----BEGIN OPENSSH PRIVATE KEY-----\n"
+                                      "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAiAAAABNlY2RzYS\n"
+                                      "1zaGEyLW5pc3RwMzg0AAAACG5pc3RwMzg0AAAAYQSLw/MlwQSW/y+mD9KpoXkoHLK88uKJ\n"
+                                      "hD8HLTNpJ+fdIP24Z6w4vJeddJo/dmsl945UwMzIaHA5DPQmUyAIAcId8wTZRF9xqRpaQI\n"
+                                      "uegjFVkxyusj5edC4qNaRKF4V6tTcAAADwdh56A3YeegMAAAATZWNkc2Etc2hhMi1uaXN0\n"
+                                      "cDM4NAAAAAhuaXN0cDM4NAAAAGEEi8PzJcEElv8vpg/SqaF5KByyvPLiiYQ/By0zaSfn3S\n"
+                                      "D9uGesOLyXnXSaP3ZrJfeOVMDMyGhwOQz0JlMgCAHCHfME2URfcakaWkCLnoIxVZMcrrI+\n"
+                                      "XnQuKjWkSheFerU3AAAAMCECw8BmZ1isLTJnOVcHoohmtfXr4lzCbSOWkQH5tPlo2tntUd\n"
+                                      "5u1XXrWlo9+5nrAgAAACJvcGVuc3Noa2V5LXRlc3QtZWNkc2EzODRAa2VlcGFzc3hjAQID\n"
+                                      "BAUG\n"
+                                      "-----END OPENSSH PRIVATE KEY-----\n");
+
+    const QByteArray keyData = keyString.toLatin1();
+
+    OpenSSHKey key;
+    QVERIFY(key.parsePKCS1PEM(keyData));
+    QVERIFY(!key.encrypted());
+    QCOMPARE(key.cipherName(), QString("none"));
+    QCOMPARE(key.type(), QString("ecdsa-sha2-nistp384"));
+    QCOMPARE(key.comment(), QString("opensshkey-test-ecdsa384@keepassxc"));
+    QCOMPARE(key.fingerprint(), QString("SHA256:B5tLMG976BZ6nyi/oRUmKaTJcaEaFagEjBfOAgru0OY"));
+}
+
+void TestOpenSSHKey::testParseECDSA521()
+{
+    const QString keyString = QString("-----BEGIN OPENSSH PRIVATE KEY-----\n"
+                                      "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAArAAAABNlY2RzYS\n"
+                                      "1zaGEyLW5pc3RwNTIxAAAACG5pc3RwNTIxAAAAhQQBIxaAOfN2yDEHakGVzGfTTzhqwLYf\n"
+                                      "7lcOgVpSSbjsDylAV9l+Pd0yBNmf/WqLWN9nzmDaSf2KqGm1HjSKgF+kt60BOyMqNIY1g/\n"
+                                      "o6jg4lgKnGiAsIo3bePzYyHBH9EC6aX2mLnCm6v/bJL4AEKuzamRlj+R/juQYFIolLJ6OS\n"
+                                      "rg6Wn/UAAAEg4p6+WOKevlgAAAATZWNkc2Etc2hhMi1uaXN0cDUyMQAAAAhuaXN0cDUyMQ\n"
+                                      "AAAIUEASMWgDnzdsgxB2pBlcxn0084asC2H+5XDoFaUkm47A8pQFfZfj3dMgTZn/1qi1jf\n"
+                                      "Z85g2kn9iqhptR40ioBfpLetATsjKjSGNYP6Oo4OJYCpxogLCKN23j82MhwR/RAuml9pi5\n"
+                                      "wpur/2yS+ABCrs2pkZY/kf47kGBSKJSyejkq4Olp/1AAAAQgC4lKZk989FOK7axlAsF3Da\n"
+                                      "H8/Ejk2o+aGOGIxe4UU3nw1QnWG0RhBsIkSir10ZBcKklg0coqcBqPQrwYc8GHBoxgAAAC\n"
+                                      "JvcGVuc3Noa2V5LXRlc3QtZWNkc2E1MjFAa2VlcGFzc3hj\n"
+                                      "-----END OPENSSH PRIVATE KEY-----\n");
+
+    const QByteArray keyData = keyString.toLatin1();
+
+    OpenSSHKey key;
+    QVERIFY(key.parsePKCS1PEM(keyData));
+    QVERIFY(!key.encrypted());
+    QCOMPARE(key.cipherName(), QString("none"));
+    QCOMPARE(key.type(), QString("ecdsa-sha2-nistp521"));
+    QCOMPARE(key.comment(), QString("opensshkey-test-ecdsa521@keepassxc"));
+    QCOMPARE(key.fingerprint(), QString("SHA256:m3LtA9MtZW8FN0R3vwA0AAI+YtegbggGCy3EGKWya+s"));
+}
+
 void TestOpenSSHKey::testDecryptOpenSSHAES256CBC()
 {
     const QString keyString = QString("-----BEGIN OPENSSH PRIVATE KEY-----\n"

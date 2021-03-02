@@ -32,6 +32,9 @@ private slots:
     void testParseDSA();
     void testParseRSA();
     void testParseRSACompare();
+    void testParseECDSA256();
+    void testParseECDSA384();
+    void testParseECDSA521();
     void testDecryptRSAAES128CBC();
     void testDecryptOpenSSHAES256CBC();
     void testDecryptRSAAES256CBC();
