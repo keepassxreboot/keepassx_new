@@ -83,6 +83,7 @@ public:
                                    const StringPairList& keyList,
                                    const bool httpAuth = false);
 
+    void performGlobalAutoType();
     static void convertAttributesToCustomData(QSharedPointer<Database> db);
 
     static const QString KEEPASSXCBROWSER_NAME;

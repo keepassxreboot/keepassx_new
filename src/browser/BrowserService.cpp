@@ -40,6 +40,7 @@
 #include "core/Tools.h"
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
+#include "gui/osutils/OSUtils.h"
 #ifdef Q_OS_MACOS
 #include "gui/osutils/macutils/MacUtils.h"
 #endif
@@ -735,6 +736,11 @@ void BrowserService::convertAttributesToCustomData(QSharedPointer<Database> db)
             break;
         }
     }
+}
+
+void BrowserService::performGlobalAutoType()
+{
+    emit osUtils->globalShortcutTriggered("autotype");
 }
 
 QList<Entry*>
