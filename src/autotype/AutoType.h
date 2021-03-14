@@ -55,16 +55,16 @@ public:
     static void createTestInstance();
 
 public slots:
-    void performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList);
+    void performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& url = QString());
     void raiseWindow();
 
 signals:
-    void globalAutoTypeTriggered();
+    void globalAutoTypeTriggered(const QString& url);
     void autotypePerformed();
     void autotypeRejected();
 
 private slots:
-    void startGlobalAutoType();
+    void startGlobalAutoType(const QString& url);
     void unloadPlugin();
 
 private:

@@ -322,6 +322,11 @@ void DatabaseWidget::setPreviewSplitterSizes(const QList<int>& sizes)
     m_previewSplitter->setSizes(sizes);
 }
 
+void DatabaseWidget::setUrlForAutoType(const QString& url)
+{
+    m_urlForAutoType = url;
+}
+
 /**
  * Get current view state of entry view
  */
@@ -1181,7 +1186,7 @@ void DatabaseWidget::unlockDatabase(bool accepted)
     if (senderDialog && senderDialog->intent() == DatabaseOpenDialog::Intent::AutoType) {
         QList<QSharedPointer<Database>> dbList;
         dbList.append(m_db);
-        autoType()->performGlobalAutoType(dbList);
+        autoType()->performGlobalAutoType(dbList, m_urlForAutoType);
     }
 }
 

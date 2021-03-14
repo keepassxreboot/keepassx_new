@@ -81,7 +81,7 @@ public slots:
     void showDatabaseSecurity();
     void showDatabaseReports();
     void showDatabaseSettings();
-    void performGlobalAutoType();
+    void performGlobalAutoType(const QString& url);
     void performBrowserUnlock();
 
 signals:

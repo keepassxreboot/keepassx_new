@@ -34,6 +34,9 @@
 #include "core/EntrySearcher.h"
 #include "gui/Clipboard.h"
 #include "gui/Icons.h"
+#ifdef WITH_XC_BROWSER
+#include "browser/BrowserService.h"
+#endif
 
 AutoTypeSelectDialog::AutoTypeSelectDialog(QWidget* parent)
     : QDialog(parent)
@@ -106,6 +109,23 @@ void AutoTypeSelectDialog::setMatches(const QList<AutoTypeMatch>& matches, const
     } else {
         m_ui->filterRadio->setChecked(true);
     }
+}
+
+void AutoTypeSelectDialog::setUrl(const QString& url)
+{
+    QString host;
+    if (url.startsWith("file://")) {
+        host = url;
+    } else {
+#ifdef WITH_XC_BROWSER
+    host = browserService()->getBaseDomainFromUrl(url);
+#else
+    host = QUrl::fromUserInput(url).host();
+#endif
+    }
+
+    m_ui->search->setText(host);
+    m_ui->searchRadio->setChecked(true);
 }
 
 void AutoTypeSelectDialog::submitAutoTypeMatch(AutoTypeMatch match)

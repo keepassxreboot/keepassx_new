@@ -512,15 +512,16 @@ QJsonObject BrowserAction::handleGlobalAutoType(const QJsonObject& json, const Q
     }
 
     QString command = decrypted.value("action").toString();
-    if (!command.isEmpty() && command.compare("perform-autotype") == 0) {
-        browserService()->performGlobalAutoType();
-
-        const QString newNonce = incrementNonce(nonce);
-        QJsonObject message = buildMessage(newNonce);
-        return buildResponse(action, message, newNonce);
+    if (command.isEmpty() || command.compare("perform-autotype") != 0) {
+        return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
-    return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
+    const auto url = decrypted.value("url").toString();
+    browserService()->performGlobalAutoType(url);
+
+    const QString newNonce = incrementNonce(nonce);
+    QJsonObject message = buildMessage(newNonce);
+    return buildResponse(action, message, newNonce);
 }
 
 QJsonObject BrowserAction::getErrorReply(const QString& action, const int errorCode) const

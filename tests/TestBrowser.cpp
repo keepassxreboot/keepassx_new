@@ -114,16 +114,22 @@ void TestBrowser::testBaseDomain()
     QString url2 = "https://www.example.com";
     QString url3 = "http://test.net";
     QString url4 = "http://so.many.subdomains.co.jp";
+    QString url5 = "https://192.168.0.1";
+    QString url6 = "https://192.168.0.1:8000";
 
-    QString res1 = m_browserService->baseDomain(url1);
-    QString res2 = m_browserService->baseDomain(url2);
-    QString res3 = m_browserService->baseDomain(url3);
-    QString res4 = m_browserService->baseDomain(url4);
+    QString res1 = m_browserService->getBaseDomainFromUrl(url1);
+    QString res2 = m_browserService->getBaseDomainFromUrl(url2);
+    QString res3 = m_browserService->getBaseDomainFromUrl(url3);
+    QString res4 = m_browserService->getBaseDomainFromUrl(url4);
+    QString res5 = m_browserService->getBaseDomainFromUrl(url5);
+    QString res6 = m_browserService->getBaseDomainFromUrl(url6);
 
     QCOMPARE(res1, QString("example.co.uk"));
     QCOMPARE(res2, QString("example.com"));
     QCOMPARE(res3, QString("test.net"));
     QCOMPARE(res4, QString("subdomains.co.jp"));
+    QCOMPARE(res5, QString("192.168.0.1"));
+    QCOMPARE(res6, QString("192.168.0.1"));
 }
 
 void TestBrowser::testSortPriority()

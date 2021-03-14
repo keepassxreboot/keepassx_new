@@ -122,6 +122,7 @@ public:
     void setMainSplitterSizes(const QList<int>& sizes);
     QList<int> previewSplitterSizes() const;
     void setPreviewSplitterSizes(const QList<int>& sizes);
+    void setUrlForAutoType(const QString& url);
 
 signals:
     // relayed Database signals
@@ -296,6 +297,9 @@ private:
 
     // Autoreload
     bool m_blockAutoSave;
+
+    // Auto-Type related
+    QString m_urlForAutoType;
 };
 
 #endif // KEEPASSX_DATABASEWIDGET_H
