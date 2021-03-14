@@ -752,7 +752,7 @@ QString BrowserService::getBaseDomainFromUrl(const QString& url) const
 {
     QUrl qurl = QUrl::fromUserInput(url);
     QString host = qurl.host();
-    
+
     // If the hostname is an IP address, return it directly
     QHostAddress hostAddress(host);
     if (!hostAddress.isNull()) {
@@ -771,7 +771,6 @@ QString BrowserService::getBaseDomainFromUrl(const QString& url) const
     baseDomain.append(qurl.topLevelDomain());
     return baseDomain;
 }
-
 
 QList<Entry*>
 BrowserService::sortEntries(QList<Entry*>& pwEntries, const QString& siteUrlStr, const QString& formUrlStr)

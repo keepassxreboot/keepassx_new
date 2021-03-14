@@ -167,11 +167,14 @@ void AutoType::loadPlugin(const QString& pluginPath)
         if (m_plugin) {
             if (m_plugin->isAvailable()) {
                 m_executor = m_plugin->createExecutor();
-                connect(osUtils, &OSUtilsBase::globalShortcutTriggered, this, [this](const QString& name, const QString& url) {
-                    if (name == "autotype") {
-                        startGlobalAutoType(url);
-                    }
-                });
+                connect(osUtils,
+                        &OSUtilsBase::globalShortcutTriggered,
+                        this,
+                        [this](const QString& name, const QString& url) {
+                            if (name == "autotype") {
+                                startGlobalAutoType(url);
+                            }
+                        });
             } else {
                 unloadPlugin();
             }

@@ -118,9 +118,9 @@ void AutoTypeSelectDialog::setUrl(const QString& url)
         host = url;
     } else {
 #ifdef WITH_XC_BROWSER
-    host = browserService()->getBaseDomainFromUrl(url);
+        host = browserService()->getBaseDomainFromUrl(url);
 #else
-    host = QUrl::fromUserInput(url).host();
+        host = QUrl::fromUserInput(url).host();
 #endif
     }
 
