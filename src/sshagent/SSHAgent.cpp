@@ -71,9 +71,19 @@ bool SSHAgent::useOpenSSH() const
     return config()->get(Config::SSHAgent_UseOpenSSH).toBool();
 }
 
+bool SSHAgent::usePageant() const
+{
+	return config()->get(Config::SSHAgent_UsePageant).toBool();
+}
+
 void SSHAgent::setUseOpenSSH(bool useOpenSSH)
 {
     config()->set(Config::SSHAgent_UseOpenSSH, useOpenSSH);
+}
+
+void SSHAgent::setUsePageant(bool usePageant)
+{
+	config()->set(Config::SSHAgent_UsePageant, usePageant);
 }
 #endif
 
@@ -120,30 +130,37 @@ bool SSHAgent::isAgentRunning() const
 bool SSHAgent::sendMessage(const QByteArray& in, QByteArray& out)
 {
 #ifdef Q_OS_WIN
-    if (!useOpenSSH()) {
-        return sendMessagePageant(in, out);
+    bool pageantRes = true;
+    if (usePageant()) {
+        pageantRes = sendMessagePageant(in, out);
     }
+	if (useOpenSSH())
+	{
 #endif
+    
+		QLocalSocket socket;
+		BinaryStream stream(&socket);
 
-    QLocalSocket socket;
-    BinaryStream stream(&socket);
+		socket.connectToServer(socketPath());
+		if (!socket.waitForConnected(500)) {
+			m_error = tr("Agent connection failed.");
+			return false;
+		}
 
-    socket.connectToServer(socketPath());
-    if (!socket.waitForConnected(500)) {
-        m_error = tr("Agent connection failed.");
-        return false;
+		stream.writeString(in);
+		stream.flush();
+
+		if (!stream.readString(out)) {
+			m_error = tr("Agent protocol error.");
+			return false;
+		}
+
+		socket.close();
+     
+#ifdef Q_OS_WIN
     }
-
-    stream.writeString(in);
-    stream.flush();
-
-    if (!stream.readString(out)) {
-        m_error = tr("Agent protocol error.");
-        return false;
-    }
-
-    socket.close();
-
+    return pageantRes; // for openssh, return true anyway? So only pageant result is crucial
+#endif
     return true;
 }
 

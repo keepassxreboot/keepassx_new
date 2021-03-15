@@ -73,9 +73,23 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="useOpenSSHCheckBox">
+       <widget class="QRadioButton" name="UsePageantRadioButton">
         <property name="text">
-         <string>Use OpenSSH for Windows instead of Pageant</string>
+         <string>Use Pageant</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="UseOpenSSHRadioButton">
+        <property name="text">
+         <string>Use OpenSSH agent</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="UseBothAgentRadioButton">
+        <property name="text">
+         <string>Use both</string>
         </property>
        </widget>
       </item>

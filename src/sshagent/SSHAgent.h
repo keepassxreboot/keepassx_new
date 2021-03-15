@@ -41,7 +41,9 @@ public:
     void setAuthSockOverride(QString& authSockOverride);
 #ifdef Q_OS_WIN
     bool useOpenSSH() const;
+    bool usePageant() const;
     void setUseOpenSSH(bool useOpenSSH);
+    void setUsePageant(bool usePageant);
 #endif
 
     const QString errorString() const;

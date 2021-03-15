@@ -29,7 +29,9 @@ AgentSettingsWidget::AgentSettingsWidget(QWidget* parent)
 {
     m_ui->setupUi(this);
 #ifndef Q_OS_WIN
-    m_ui->useOpenSSHCheckBox->setVisible(false);
+    m_ui->UsePageantRadioButton->setVisible(false);
+    m_ui->UseOpenSSHRadioButton->setVisible(false);
+    m_ui->UseBothAgentRadioButton->setVisible(false);
 #else
     m_ui->sshAuthSockWidget->setVisible(false);
 #endif
@@ -49,7 +51,10 @@ void AgentSettingsWidget::loadSettings()
 
     m_ui->enableSSHAgentCheckBox->setChecked(sshAgentEnabled);
 #ifdef Q_OS_WIN
-    m_ui->useOpenSSHCheckBox->setChecked(sshAgent()->useOpenSSH());
+    m_ui->UsePageantRadioButton->setChecked(sshAgent()->usePageant());
+    m_ui->UseOpenSSHRadioButton->setChecked(sshAgent()->useOpenSSH());
+    // for useBoth case, above operations will be overrideed.
+    m_ui->UseBothAgentRadioButton->setChecked(sshAgent()->useOpenSSH() && sshAgent()->usePageant());
 #else
     auto sshAuthSock = sshAgent()->socketPath(false);
     auto sshAuthSockOverride = sshAgent()->authSockOverride();
@@ -86,7 +91,19 @@ void AgentSettingsWidget::saveSettings()
     auto sshAuthSockOverride = m_ui->sshAuthSockOverrideEdit->text();
     sshAgent()->setAuthSockOverride(sshAuthSockOverride);
 #ifdef Q_OS_WIN
-    sshAgent()->setUseOpenSSH(m_ui->useOpenSSHCheckBox->isChecked());
+    if (m_ui->UsePageantRadioButton->isChecked()) {
+		sshAgent()->setUsePageant(true);
+		sshAgent()->setUseOpenSSH(false);
+    }
+    else if (m_ui->UseOpenSSHRadioButton->isChecked()){
+        sshAgent()->setUsePageant(false);
+        sshAgent()->setUseOpenSSH(true);
+    }
+    else{ // use both
+		sshAgent()->setUsePageant(true);
+		sshAgent()->setUseOpenSSH(true);
+    }
+	
 #endif
     sshAgent()->setEnabled(m_ui->enableSSHAgentCheckBox->isChecked());
 }
