@@ -51,6 +51,7 @@ namespace Tools
                                       bool caseSensitive = false);
     QString envSubstitute(const QString& filepath,
                           QProcessEnvironment environment = QProcessEnvironment::systemEnvironment());
+    QString getBaseDomainFromUrl(const QString& url);
 
     template <typename RandomAccessIterator, typename T>
     RandomAccessIterator binaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T& value)

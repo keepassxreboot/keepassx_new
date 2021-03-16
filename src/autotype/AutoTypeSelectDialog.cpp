@@ -32,11 +32,9 @@
 #include "core/Database.h"
 #include "core/Entry.h"
 #include "core/EntrySearcher.h"
+#include "core/Tools.h"
 #include "gui/Clipboard.h"
 #include "gui/Icons.h"
-#ifdef WITH_XC_BROWSER
-#include "browser/BrowserService.h"
-#endif
 
 AutoTypeSelectDialog::AutoTypeSelectDialog(QWidget* parent)
     : QDialog(parent)
@@ -117,11 +115,7 @@ void AutoTypeSelectDialog::setUrl(const QString& url)
     if (url.startsWith("file://")) {
         host = url;
     } else {
-#ifdef WITH_XC_BROWSER
-        host = browserService()->getBaseDomainFromUrl(url);
-#else
-        host = QUrl::fromUserInput(url).host();
-#endif
+        host = Tools::getBaseDomainFromUrl(url);
     }
 
     m_ui->search->setText(host);

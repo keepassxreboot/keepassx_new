@@ -353,6 +353,34 @@ namespace Tools
         return subbed;
     }
 
+    /**
+    * Gets the base domain of URL.
+    * Returns the base domain, e.g. https://another.example.co.uk -> example.co.uk
+    */
+    QString getBaseDomainFromUrl(const QString& url)
+    {
+        QUrl qurl = QUrl::fromUserInput(url);
+        QString host = qurl.host();
+
+        // If the hostname is an IP address, return it directly
+        QRegularExpression re("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+        if (re.match(host).hasMatch()) {
+            return host;
+        }
+
+        if (host.isEmpty() || !host.contains(qurl.topLevelDomain())) {
+            return {};
+        }
+
+        // Remove the top level domain part from the hostname, e.g. https://another.example.co.uk -> https://another.example
+        host.chop(qurl.topLevelDomain().length());
+        // Split the URL and select the last part, e.g. https://another.example -> example
+        QString baseDomain = host.split('.').last();
+        // Append the top level domain back to the URL, e.g. example -> example.co.uk
+        baseDomain.append(qurl.topLevelDomain());
+        return baseDomain;
+    }
+
     Buffer::Buffer()
         : raw(nullptr)
         , size(0)

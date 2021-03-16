@@ -85,7 +85,6 @@ public:
 
     void performGlobalAutoType(const QString& url);
     static void convertAttributesToCustomData(QSharedPointer<Database> db);
-    QString getBaseDomainFromUrl(const QString& url) const;
 
     static const QString KEEPASSXCBROWSER_NAME;
     static const QString KEEPASSXCBROWSER_OLD_NAME;
