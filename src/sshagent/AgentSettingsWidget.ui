@@ -72,24 +72,17 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QRadioButton" name="UsePageantRadioButton">
+	  <item>
+       <widget class="QCheckBox" name="usePageantCheckBox">
         <property name="text">
          <string>Use Pageant</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="UseOpenSSHRadioButton">
+       <widget class="QCheckBox" name="useOpenSSHCheckBox">
         <property name="text">
-         <string>Use OpenSSH agent</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="UseBothAgentRadioButton">
-        <property name="text">
-         <string>Use both</string>
+         <string>Use OpenSSH</string>
         </property>
        </widget>
       </item>

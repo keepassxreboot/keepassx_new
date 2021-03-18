@@ -466,7 +466,7 @@ void SSHAgent::databaseLocked(QSharedPointer<Database> db)
 
 void SSHAgent::databaseUnlocked(QSharedPointer<Database> db)
 {
-    if (!db || !isEnabled()) {
+    if (!db || !isEnabled() || (!useOpenSSH() && !usePageant())) {
         return;
     }
 
