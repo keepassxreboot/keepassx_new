@@ -735,7 +735,7 @@ void DatabaseTabWidget::emitDatabaseLockChanged()
     }
 }
 
-void DatabaseTabWidget::performGlobalAutoType(const QString& url)
+void DatabaseTabWidget::performGlobalAutoType(const QString& search)
 {
     QList<QSharedPointer<Database>> unlockedDatabases;
 
@@ -748,13 +748,13 @@ void DatabaseTabWidget::performGlobalAutoType(const QString& url)
 
     // TODO: allow for database selection during Auto-Type instead of using the current tab
     if (!unlockedDatabases.isEmpty()) {
-        autoType()->performGlobalAutoType(unlockedDatabases, url);
+        autoType()->performGlobalAutoType(unlockedDatabases, search);
     } else if (count() > 0) {
         if (config()->get(Config::Security_RelockAutoType).toBool()) {
             m_dbWidgetPendingLock = currentDatabaseWidget();
         }
 
-        currentDatabaseWidget()->setUrlForAutoType(url);
+        currentDatabaseWidget()->setSearchStringForAutoType(search);
         unlockDatabaseInDialog(currentDatabaseWidget(), DatabaseOpenDialog::Intent::AutoType);
     }
 }

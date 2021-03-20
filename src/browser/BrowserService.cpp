@@ -17,18 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QCheckBox>
-#include <QInputDialog>
-#include <QJsonArray>
-#include <QMessageBox>
-#include <QProgressDialog>
-#include <QUuid>
+#include "BrowserService.h"
 #include "BrowserAccessControlDialog.h"
 #include "BrowserAction.h"
 #include "BrowserEntryConfig.h"
 #include "BrowserEntrySaveDialog.h"
 #include "BrowserHost.h"
-#include "BrowserService.h"
 #include "BrowserSettings.h"
 #include "core/Database.h"
 #include "core/EntrySearcher.h"
@@ -39,6 +33,12 @@
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
 #include "gui/osutils/OSUtils.h"
+#include <QCheckBox>
+#include <QInputDialog>
+#include <QJsonArray>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QUuid>
 #ifdef Q_OS_MACOS
 #include "gui/osutils/macutils/MacUtils.h"
 #endif
@@ -1084,8 +1084,8 @@ bool BrowserService::handleURL(const QString& entryUrl, const QString& siteUrlSt
 };
 
 /**
-* Returns the top level domain from URL, e.g. https://another.example.co.uk -> example.co.uk
-*/
+ * Returns the top level domain from URL, e.g. https://another.example.co.uk -> example.co.uk
+ */
 QString BrowserService::getTopLevelDomainFromUrl(const QString& url) const
 {
     QUrl qurl = QUrl::fromUserInput(url);

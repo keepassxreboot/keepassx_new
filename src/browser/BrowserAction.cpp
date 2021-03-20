@@ -516,8 +516,8 @@ QJsonObject BrowserAction::handleGlobalAutoType(const QJsonObject& json, const Q
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
-    const auto baseDomain = decrypted.value("search").toString();
-    browserService()->requestGlobalAutoType(baseDomain);
+    const auto topLevelDomain = decrypted.value("search").toString();
+    browserService()->requestGlobalAutoType(topLevelDomain);
 
     const QString newNonce = incrementNonce(nonce);
     QJsonObject message = buildMessage(newNonce);

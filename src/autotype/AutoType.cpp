@@ -437,7 +437,7 @@ void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbLi
         auto* selectDialog = new AutoTypeSelectDialog();
         selectDialog->setMatches(matchList, dbList);
 
-        if (!domain.isEmpty()) {
+        if (!search.isEmpty()) {
             selectDialog->setSearchString(search);
         }
 

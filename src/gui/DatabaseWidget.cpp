@@ -1186,7 +1186,7 @@ void DatabaseWidget::unlockDatabase(bool accepted)
     if (senderDialog && senderDialog->intent() == DatabaseOpenDialog::Intent::AutoType) {
         QList<QSharedPointer<Database>> dbList;
         dbList.append(m_db);
-        autoType()->performGlobalAutoType(dbList, m_urlForAutoType);
+        autoType()->performGlobalAutoType(dbList, m_searchStringForAutoType);
     }
 }
 
