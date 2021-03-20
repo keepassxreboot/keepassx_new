@@ -28,7 +28,6 @@ private slots:
     void testIsHex();
     void testIsBase64();
     void testEnvSubstitute();
-    void testBaseDomain();
 };
 
 #endif // KEEPASSX_TESTTOOLS_H

@@ -32,7 +32,6 @@
 #include "core/Database.h"
 #include "core/Entry.h"
 #include "core/EntrySearcher.h"
-#include "core/Tools.h"
 #include "gui/Clipboard.h"
 #include "gui/Icons.h"
 
@@ -109,16 +108,9 @@ void AutoTypeSelectDialog::setMatches(const QList<AutoTypeMatch>& matches, const
     }
 }
 
-void AutoTypeSelectDialog::setUrl(const QString& url)
+void AutoTypeSelectDialog::setSearchString(const QString& search)
 {
-    QString host;
-    if (url.startsWith("file://")) {
-        host = url;
-    } else {
-        host = Tools::getBaseDomainFromUrl(url);
-    }
-
-    m_ui->search->setText(host);
+    m_ui->search->setText(search);
     m_ui->searchRadio->setChecked(true);
 }
 

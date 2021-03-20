@@ -736,9 +736,9 @@ void BrowserService::convertAttributesToCustomData(QSharedPointer<Database> db)
     }
 }
 
-void BrowserService::performGlobalAutoType(const QString& url)
+void BrowserService::requestGlobalAutoType(const QString& baseDomain)
 {
-    emit osUtils->globalShortcutTriggered("autotype", url);
+    emit osUtils->globalShortcutTriggered("autotype", baseDomain);
 }
 
 QList<Entry*>
@@ -1071,7 +1071,7 @@ bool BrowserService::handleURL(const QString& entryUrl, const QString& siteUrlSt
     }
 
     // Match the base domain
-    if (Tools::getBaseDomainFromUrl(siteQUrl.host()) != Tools::getBaseDomainFromUrl(entryQUrl.host())) {
+    if (getTopLevelDomainFromUrl(siteQUrl.host()) != getTopLevelDomainFromUrl(entryQUrl.host())) {
         return false;
     }
 
@@ -1082,6 +1082,33 @@ bool BrowserService::handleURL(const QString& entryUrl, const QString& siteUrlSt
 
     return false;
 };
+
+/**
+* Returns the top level domain from URL, e.g. https://another.example.co.uk -> example.co.uk
+*/
+QString BrowserService::getTopLevelDomainFromUrl(const QString& url) const
+{
+    QUrl qurl = QUrl::fromUserInput(url);
+    QString host = qurl.host();
+
+    // If the hostname is an IP address, return it directly
+    QRegularExpression re("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+    if (re.match(host).hasMatch()) {
+        return host;
+    }
+
+    if (host.isEmpty() || !host.contains(qurl.topLevelDomain())) {
+        return {};
+    }
+
+    // Remove the top level domain part from the hostname, e.g. https://another.example.co.uk -> https://another.example
+    host.chop(qurl.topLevelDomain().length());
+    // Split the URL and select the last part, e.g. https://another.example -> example
+    QString baseDomain = host.split('.').last();
+    // Append the top level domain back to the URL, e.g. example -> example.co.uk
+    baseDomain.append(qurl.topLevelDomain());
+    return baseDomain;
+}
 
 QSharedPointer<Database> BrowserService::getDatabase()
 {

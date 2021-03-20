@@ -392,7 +392,7 @@ void AutoType::startGlobalAutoType(const QString& url)
  * Global Autotype entry-point function
  * Perform global Auto-Type on the active window
  */
-void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& url)
+void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& domain)
 {
     if (!m_plugin) {
         return;
@@ -437,8 +437,8 @@ void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbLi
         auto* selectDialog = new AutoTypeSelectDialog();
         selectDialog->setMatches(matchList, dbList);
 
-        if (!url.isEmpty()) {
-            selectDialog->setUrl(url);
+        if (!domain.isEmpty()) {
+            selectDialog->setSearchString(domain);
         }
 
         connect(getMainWindow(), &MainWindow::databaseLocked, selectDialog, &AutoTypeSelectDialog::reject);

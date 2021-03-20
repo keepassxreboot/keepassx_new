@@ -69,7 +69,7 @@ QJsonObject BrowserAction::processClientMessage(const QJsonObject& json)
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
-    if (action.compare("change-public-keys") != 0 && action.compare("perform-autotype") != 0
+    if (action.compare("change-public-keys") != 0 && action.compare("request-autotype") != 0
         && !browserService()->isDatabaseOpened()) {
         if (m_clientPublicKey.isEmpty()) {
             return getErrorReply(action, ERROR_KEEPASS_CLIENT_PUBLIC_KEY_NOT_RECEIVED);
@@ -110,7 +110,7 @@ QJsonObject BrowserAction::handleAction(const QJsonObject& json)
         return handleCreateNewGroup(json, action);
     } else if (action.compare("get-totp") == 0) {
         return handleGetTotp(json, action);
-    } else if (action.compare("perform-autotype") == 0) {
+    } else if (action.compare("request-autotype") == 0) {
         return handleGlobalAutoType(json, action);
     }
 
@@ -512,12 +512,12 @@ QJsonObject BrowserAction::handleGlobalAutoType(const QJsonObject& json, const Q
     }
 
     QString command = decrypted.value("action").toString();
-    if (command.isEmpty() || command.compare("perform-autotype") != 0) {
+    if (command.isEmpty() || command.compare("request-autotype") != 0) {
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
-    const auto url = decrypted.value("url").toString();
-    browserService()->performGlobalAutoType(url);
+    const auto baseDomain = decrypted.value("search").toString();
+    browserService()->requestGlobalAutoType(baseDomain);
 
     const QString newNonce = incrementNonce(nonce);
     QJsonObject message = buildMessage(newNonce);

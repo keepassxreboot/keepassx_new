@@ -55,7 +55,7 @@ public:
     static void createTestInstance();
 
 public slots:
-    void performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& url = QString());
+    void performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& domain = QString());
     void raiseWindow();
 
 signals:
