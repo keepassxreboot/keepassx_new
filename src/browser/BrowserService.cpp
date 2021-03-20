@@ -736,9 +736,9 @@ void BrowserService::convertAttributesToCustomData(QSharedPointer<Database> db)
     }
 }
 
-void BrowserService::requestGlobalAutoType(const QString& baseDomain)
+void BrowserService::requestGlobalAutoType(const QString& search)
 {
-    emit osUtils->globalShortcutTriggered("autotype", baseDomain);
+    emit osUtils->globalShortcutTriggered("autotype", search);
 }
 
 QList<Entry*>

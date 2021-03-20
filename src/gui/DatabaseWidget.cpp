@@ -322,9 +322,9 @@ void DatabaseWidget::setPreviewSplitterSizes(const QList<int>& sizes)
     m_previewSplitter->setSizes(sizes);
 }
 
-void DatabaseWidget::setUrlForAutoType(const QString& url)
+void DatabaseWidget::setSearchStringForAutoType(const QString& search)
 {
-    m_urlForAutoType = url;
+    m_searchStringForAutoType = search;
 }
 
 /**

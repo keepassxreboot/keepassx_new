@@ -347,7 +347,7 @@ void AutoType::performAutoTypeWithSequence(const Entry* entry, const QString& se
     executeAutoTypeActions(entry, hideWindow, sequence);
 }
 
-void AutoType::startGlobalAutoType(const QString& url)
+void AutoType::startGlobalAutoType(const QString& search)
 {
     // Never Auto-Type into KeePassXC itself
     if (qApp->focusWindow()) {
@@ -385,14 +385,14 @@ void AutoType::startGlobalAutoType(const QString& url)
     }
 #endif
 
-    emit globalAutoTypeTriggered(url);
+    emit globalAutoTypeTriggered(search);
 }
 
 /**
  * Global Autotype entry-point function
  * Perform global Auto-Type on the active window
  */
-void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& domain)
+void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbList, const QString& search)
 {
     if (!m_plugin) {
         return;
@@ -438,7 +438,7 @@ void AutoType::performGlobalAutoType(const QList<QSharedPointer<Database>>& dbLi
         selectDialog->setMatches(matchList, dbList);
 
         if (!domain.isEmpty()) {
-            selectDialog->setSearchString(domain);
+            selectDialog->setSearchString(search);
         }
 
         connect(getMainWindow(), &MainWindow::databaseLocked, selectDialog, &AutoTypeSelectDialog::reject);

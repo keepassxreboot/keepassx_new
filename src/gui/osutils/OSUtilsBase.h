@@ -69,7 +69,7 @@ public:
     virtual bool setPreventScreenCapture(QWindow* window, bool allow) const;
 
 signals:
-    void globalShortcutTriggered(const QString& name, const QString& url = QString());
+    void globalShortcutTriggered(const QString& name, const QString& search = QString());
 
     /**
      * Indicates platform UI theme change (light mode to dark mode).
