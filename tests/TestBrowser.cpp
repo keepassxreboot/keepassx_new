@@ -108,7 +108,7 @@ void TestBrowser::testIncrementNonce()
 /**
  * Tests for BrowserService
  */
-void TestBrowser::testBaseDomain()
+void TestBrowser::testTopLevelDomain()
 {
     QString url1 = "https://another.example.co.uk";
     QString url2 = "https://www.example.com";
@@ -117,12 +117,12 @@ void TestBrowser::testBaseDomain()
     QString url5 = "https://192.168.0.1";
     QString url6 = "https://192.168.0.1:8000";
 
-    QString res1 = Tools::getBaseDomainFromUrl(url1);
-    QString res2 = Tools::getBaseDomainFromUrl(url2);
-    QString res3 = Tools::getBaseDomainFromUrl(url3);
-    QString res4 = Tools::getBaseDomainFromUrl(url4);
-    QString res5 = Tools::getBaseDomainFromUrl(url5);
-    QString res6 = Tools::getBaseDomainFromUrl(url6);
+    QString res1 = m_browserService->getTopLevelDomainFromUrl(url1);
+    QString res2 = m_browserService->getTopLevelDomainFromUrl(url2);
+    QString res3 = m_browserService->getTopLevelDomainFromUrl(url3);
+    QString res4 = m_browserService->getTopLevelDomainFromUrl(url4);
+    QString res5 = m_browserService->getTopLevelDomainFromUrl(url5);
+    QString res6 = m_browserService->getTopLevelDomainFromUrl(url6);
 
     QCOMPARE(res1, QString("example.co.uk"));
     QCOMPARE(res2, QString("example.com"));
