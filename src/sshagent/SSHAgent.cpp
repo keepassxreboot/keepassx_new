@@ -73,7 +73,7 @@ bool SSHAgent::useOpenSSH() const
 
 bool SSHAgent::usePageant() const
 {
-	return config()->get(Config::SSHAgent_UsePageant).toBool();
+    return config()->get(Config::SSHAgent_UsePageant).toBool();
 }
 
 void SSHAgent::setUseOpenSSH(bool useOpenSSH)
@@ -83,7 +83,7 @@ void SSHAgent::setUseOpenSSH(bool useOpenSSH)
 
 void SSHAgent::setUsePageant(bool usePageant)
 {
-	config()->set(Config::SSHAgent_UsePageant, usePageant);
+    config()->set(Config::SSHAgent_UsePageant, usePageant);
 }
 #endif
 
@@ -119,10 +119,14 @@ bool SSHAgent::isAgentRunning() const
     QFileInfo socketFileInfo(socketPath());
     return !socketFileInfo.path().isEmpty() && socketFileInfo.exists();
 #else
-    if (!useOpenSSH()) {
+    if (usePageant() && useOpenSSH()) {
+        return (FindWindowA("Pageant", "Pageant") != nullptr) && WaitNamedPipe(socketPath().toLatin1().data(), 100);
+    } else if (useOpenSSH()) {
+        return WaitNamedPipe(socketPath().toLatin1().data(), 100);
+    } else if (usePageant()) {
         return (FindWindowA("Pageant", "Pageant") != nullptr);
     } else {
-        return WaitNamedPipe(socketPath().toLatin1().data(), 100);
+        return false;
     }
 #endif
 }
@@ -130,37 +134,38 @@ bool SSHAgent::isAgentRunning() const
 bool SSHAgent::sendMessage(const QByteArray& in, QByteArray& out)
 {
 #ifdef Q_OS_WIN
-    bool pageantRes = true;
-    if (usePageant()) {
-        pageantRes = sendMessagePageant(in, out);
+    if (usePageant() && !sendMessagePageant(in, out)) {
+        return false;
     }
-	if (useOpenSSH())
-	{
-#endif
-    
-		QLocalSocket socket;
-		BinaryStream stream(&socket);
-
-		socket.connectToServer(socketPath());
-		if (!socket.waitForConnected(500)) {
-			m_error = tr("Agent connection failed.");
-			return false;
-		}
-
-		stream.writeString(in);
-		stream.flush();
-
-		if (!stream.readString(out)) {
-			m_error = tr("Agent protocol error.");
-			return false;
-		}
-
-		socket.close();
-     
-#ifdef Q_OS_WIN
+    if (useOpenSSH() && !sendMessageOpenSSH(in, out)) {
+        return false;
     }
-    return pageantRes; // for openssh, return true anyway? So only pageant result is crucial
+    return true;
+#else
+    return sendMessageOpenSSH(in, out);
 #endif
+}
+
+bool SSHAgent::sendMessageOpenSSH(const QByteArray& in, QByteArray& out)
+{
+    QLocalSocket socket;
+    BinaryStream stream(&socket);
+
+    socket.connectToServer(socketPath());
+    if (!socket.waitForConnected(500)) {
+        m_error = tr("Agent connection failed.");
+        return false;
+    }
+
+    stream.writeString(in);
+    stream.flush();
+
+    if (!stream.readString(out)) {
+        m_error = tr("Agent protocol error.");
+        return false;
+    }
+
+    socket.close();
     return true;
 }
 
@@ -466,7 +471,7 @@ void SSHAgent::databaseLocked(QSharedPointer<Database> db)
 
 void SSHAgent::databaseUnlocked(QSharedPointer<Database> db)
 {
-    if (!db || !isEnabled() || (!useOpenSSH() && !usePageant())) {
+    if (!db || !isEnabled()) {
         return;
     }
 

@@ -90,7 +90,7 @@ void AgentSettingsWidget::saveSettings()
     sshAgent()->setAuthSockOverride(sshAuthSockOverride);
 #ifdef Q_OS_WIN
     sshAgent()->setUsePageant(m_ui->usePageantCheckBox->isChecked());
-    sshAgent()->setUseOpenSSH(m_ui->useOpenSSHCheckBox->isChecked());	
+    sshAgent()->setUseOpenSSH(m_ui->useOpenSSHCheckBox->isChecked());
 #endif
     sshAgent()->setEnabled(m_ui->enableSSHAgentCheckBox->isChecked());
 }

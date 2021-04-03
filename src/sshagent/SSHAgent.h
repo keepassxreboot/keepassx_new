@@ -76,6 +76,7 @@ private:
     const quint8 SSH_AGENT_CONSTRAIN_CONFIRM = 2;
 
     bool sendMessage(const QByteArray& in, QByteArray& out);
+    bool sendMessageOpenSSH(const QByteArray& in, QByteArray& out);
 #ifdef Q_OS_WIN
     bool sendMessagePageant(const QByteArray& in, QByteArray& out);
 
