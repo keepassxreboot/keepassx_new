@@ -17,20 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QCheckBox>
-#include <QHostAddress>
-#include <QInputDialog>
-#include <QJsonArray>
-#include <QMessageBox>
-#include <QProgressDialog>
-#include <QUuid>
-
+#include "BrowserService.h"
 #include "BrowserAccessControlDialog.h"
 #include "BrowserAction.h"
 #include "BrowserEntryConfig.h"
 #include "BrowserEntrySaveDialog.h"
 #include "BrowserHost.h"
-#include "BrowserService.h"
 #include "BrowserSettings.h"
 #include "core/Database.h"
 #include "core/EntrySearcher.h"
@@ -40,6 +32,13 @@
 #include "core/Tools.h"
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
+#include "gui/osutils/OSUtils.h"
+#include <QCheckBox>
+#include <QInputDialog>
+#include <QJsonArray>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QUuid>
 #ifdef Q_OS_MACOS
 #include "gui/osutils/macutils/MacUtils.h"
 #endif
@@ -737,6 +736,11 @@ void BrowserService::convertAttributesToCustomData(QSharedPointer<Database> db)
     }
 }
 
+void BrowserService::requestGlobalAutoType(const QString& search)
+{
+    emit osUtils->globalShortcutTriggered("autotype", search);
+}
+
 QList<Entry*>
 BrowserService::sortEntries(QList<Entry*>& pwEntries, const QString& siteUrlStr, const QString& formUrlStr)
 {
@@ -1062,7 +1066,7 @@ bool BrowserService::handleURL(const QString& entryUrl, const QString& siteUrlSt
     }
 
     // Match the base domain
-    if (baseDomain(siteQUrl.host()) != baseDomain(entryQUrl.host())) {
+    if (getTopLevelDomainFromUrl(siteQUrl.host()) != getTopLevelDomainFromUrl(entryQUrl.host())) {
         return false;
     }
 
@@ -1075,19 +1079,17 @@ bool BrowserService::handleURL(const QString& entryUrl, const QString& siteUrlSt
 };
 
 /**
- * Gets the base domain of URL.
- *
- * Returns the base domain, e.g. https://another.example.co.uk -> example.co.uk
+ * Returns the top level domain from URL, e.g. https://another.example.co.uk -> example.co.uk
  */
-QString BrowserService::baseDomain(const QString& hostname) const
+QString BrowserService::getTopLevelDomainFromUrl(const QString& url) const
 {
-    QUrl qurl = QUrl::fromUserInput(hostname);
+    QUrl qurl = QUrl::fromUserInput(url);
     QString host = qurl.host();
 
     // If the hostname is an IP address, return it directly
-    QHostAddress hostAddress(hostname);
-    if (!hostAddress.isNull()) {
-        return hostname;
+    QRegularExpression re("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+    if (re.match(host).hasMatch()) {
+        return host;
     }
 
     if (host.isEmpty() || !host.contains(qurl.topLevelDomain())) {

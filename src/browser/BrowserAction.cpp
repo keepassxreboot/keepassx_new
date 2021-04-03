@@ -60,7 +60,7 @@ QJsonObject BrowserAction::processClientMessage(const QJsonObject& json)
 
     bool triggerUnlock = false;
     const QString trigger = json.value("triggerUnlock").toString();
-    if (!trigger.isEmpty() && trigger.compare(TRUE_STR, Qt::CaseSensitive) == 0) {
+    if (!trigger.isEmpty() && trigger.compare(TRUE_STR) == 0) {
         triggerUnlock = true;
     }
 
@@ -69,7 +69,8 @@ QJsonObject BrowserAction::processClientMessage(const QJsonObject& json)
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
-    if (action.compare("change-public-keys", Qt::CaseSensitive) != 0 && !browserService()->isDatabaseOpened()) {
+    if (action.compare("change-public-keys") != 0 && action.compare("request-autotype") != 0
+        && !browserService()->isDatabaseOpened()) {
         if (m_clientPublicKey.isEmpty()) {
             return getErrorReply(action, ERROR_KEEPASS_CLIENT_PUBLIC_KEY_NOT_RECEIVED);
         } else if (!browserService()->openDatabase(triggerUnlock)) {
@@ -87,28 +88,30 @@ QJsonObject BrowserAction::handleAction(const QJsonObject& json)
 {
     QString action = json.value("action").toString();
 
-    if (action.compare("change-public-keys", Qt::CaseSensitive) == 0) {
+    if (action.compare("change-public-keys") == 0) {
         return handleChangePublicKeys(json, action);
-    } else if (action.compare("get-databasehash", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("get-databasehash") == 0) {
         return handleGetDatabaseHash(json, action);
-    } else if (action.compare("associate", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("associate") == 0) {
         return handleAssociate(json, action);
-    } else if (action.compare("test-associate", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("test-associate") == 0) {
         return handleTestAssociate(json, action);
-    } else if (action.compare("get-logins", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("get-logins") == 0) {
         return handleGetLogins(json, action);
-    } else if (action.compare("generate-password", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("generate-password") == 0) {
         return handleGeneratePassword(json, action);
-    } else if (action.compare("set-login", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("set-login") == 0) {
         return handleSetLogin(json, action);
-    } else if (action.compare("lock-database", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("lock-database") == 0) {
         return handleLockDatabase(json, action);
-    } else if (action.compare("get-database-groups", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("get-database-groups") == 0) {
         return handleGetDatabaseGroups(json, action);
-    } else if (action.compare("create-new-group", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("create-new-group") == 0) {
         return handleCreateNewGroup(json, action);
-    } else if (action.compare("get-totp", Qt::CaseSensitive) == 0) {
+    } else if (action.compare("get-totp") == 0) {
         return handleGetTotp(json, action);
+    } else if (action.compare("request-autotype") == 0) {
+        return handleGlobalAutoType(json, action);
     }
 
     // Action was not recognized
@@ -162,7 +165,7 @@ QJsonObject BrowserAction::handleGetDatabaseHash(const QJsonObject& json, const 
     }
 
     QString command = decrypted.value("action").toString();
-    if (!command.isEmpty() && command.compare("get-databasehash", Qt::CaseSensitive) == 0) {
+    if (!command.isEmpty() && command.compare("get-databasehash") == 0) {
         const QString newNonce = incrementNonce(nonce);
 
         QJsonObject message = buildMessage(newNonce);
@@ -199,7 +202,7 @@ QJsonObject BrowserAction::handleAssociate(const QJsonObject& json, const QStrin
         return getErrorReply(action, ERROR_KEEPASS_ASSOCIATION_FAILED);
     }
 
-    if (key.compare(m_clientPublicKey, Qt::CaseSensitive) == 0) {
+    if (key.compare(m_clientPublicKey) == 0) {
         // Check for identification key. If it's not found, ensure backwards compatibility and use the current public
         // key
         const QString idKey = decrypted.value("idKey").toString();
@@ -238,7 +241,7 @@ QJsonObject BrowserAction::handleTestAssociate(const QJsonObject& json, const QS
     }
 
     const QString key = browserService()->getKey(id);
-    if (key.isEmpty() || key.compare(responseKey, Qt::CaseSensitive) != 0) {
+    if (key.isEmpty() || key.compare(responseKey) != 0) {
         return getErrorReply(action, ERROR_KEEPASS_ASSOCIATION_FAILED);
     }
 
@@ -283,7 +286,7 @@ QJsonObject BrowserAction::handleGetLogins(const QJsonObject& json, const QStrin
     const QString id = decrypted.value("id").toString();
     const QString formUrl = decrypted.value("submitUrl").toString();
     const QString auth = decrypted.value("httpAuth").toString();
-    const bool httpAuth = auth.compare(TRUE_STR, Qt::CaseSensitive) == 0 ? true : false;
+    const bool httpAuth = auth.compare(TRUE_STR) == 0 ? true : false;
     const QJsonArray users = browserService()->findMatchingEntries(id, siteUrl, formUrl, "", keyList, httpAuth);
 
     if (users.isEmpty()) {
@@ -387,7 +390,7 @@ QJsonObject BrowserAction::handleLockDatabase(const QJsonObject& json, const QSt
     }
 
     QString command = decrypted.value("action").toString();
-    if (!command.isEmpty() && command.compare("lock-database", Qt::CaseSensitive) == 0) {
+    if (!command.isEmpty() && command.compare("lock-database") == 0) {
         browserService()->lockDatabase();
 
         const QString newNonce = incrementNonce(nonce);
@@ -415,7 +418,7 @@ QJsonObject BrowserAction::handleGetDatabaseGroups(const QJsonObject& json, cons
     }
 
     QString command = decrypted.value("action").toString();
-    if (command.isEmpty() || command.compare("get-database-groups", Qt::CaseSensitive) != 0) {
+    if (command.isEmpty() || command.compare("get-database-groups") != 0) {
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
@@ -448,7 +451,7 @@ QJsonObject BrowserAction::handleCreateNewGroup(const QJsonObject& json, const Q
     }
 
     QString command = decrypted.value("action").toString();
-    if (command.isEmpty() || command.compare("create-new-group", Qt::CaseSensitive) != 0) {
+    if (command.isEmpty() || command.compare("create-new-group") != 0) {
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
@@ -482,7 +485,7 @@ QJsonObject BrowserAction::handleGetTotp(const QJsonObject& json, const QString&
     }
 
     QString command = decrypted.value("action").toString();
-    if (command.isEmpty() || command.compare("get-totp", Qt::CaseSensitive) != 0) {
+    if (command.isEmpty() || command.compare("get-totp") != 0) {
         return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
     }
 
@@ -495,6 +498,29 @@ QJsonObject BrowserAction::handleGetTotp(const QJsonObject& json, const QString&
     QJsonObject message = buildMessage(newNonce);
     message["totp"] = totp;
 
+    return buildResponse(action, message, newNonce);
+}
+
+QJsonObject BrowserAction::handleGlobalAutoType(const QJsonObject& json, const QString& action)
+{
+    const QString nonce = json.value("nonce").toString();
+    const QString encrypted = json.value("message").toString();
+    const QJsonObject decrypted = decryptMessage(encrypted, nonce);
+
+    if (decrypted.isEmpty()) {
+        return getErrorReply(action, ERROR_KEEPASS_CANNOT_DECRYPT_MESSAGE);
+    }
+
+    QString command = decrypted.value("action").toString();
+    if (command.isEmpty() || command.compare("request-autotype") != 0) {
+        return getErrorReply(action, ERROR_KEEPASS_INCORRECT_ACTION);
+    }
+
+    const auto topLevelDomain = decrypted.value("search").toString();
+    browserService()->requestGlobalAutoType(topLevelDomain);
+
+    const QString newNonce = incrementNonce(nonce);
+    QJsonObject message = buildMessage(newNonce);
     return buildResponse(action, message, newNonce);
 }
 

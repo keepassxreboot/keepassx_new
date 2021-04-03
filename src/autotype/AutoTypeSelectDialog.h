@@ -40,6 +40,7 @@ public:
     ~AutoTypeSelectDialog() override;
 
     void setMatches(const QList<AutoTypeMatch>& matchList, const QList<QSharedPointer<Database>>& dbs);
+    void setSearchString(const QString& search);
 
 signals:
     void matchActivated(AutoTypeMatch match);

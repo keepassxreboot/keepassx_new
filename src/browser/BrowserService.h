@@ -83,6 +83,7 @@ public:
                                    const StringPairList& keyList,
                                    const bool httpAuth = false);
 
+    void requestGlobalAutoType(const QString& search);
     static void convertAttributesToCustomData(QSharedPointer<Database> db);
 
     static const QString KEEPASSXCBROWSER_NAME;
@@ -138,7 +139,7 @@ private:
     bool removeFirstDomain(QString& hostname);
     bool handleEntry(Entry* entry, const QString& url, const QString& submitUrl);
     bool handleURL(const QString& entryUrl, const QString& siteUrlStr, const QString& formUrlStr);
-    QString baseDomain(const QString& hostname) const;
+    QString getTopLevelDomainFromUrl(const QString& url) const;
     QSharedPointer<Database> getDatabase();
     QSharedPointer<Database> selectedDatabase();
     QString getDatabaseRootUuid();

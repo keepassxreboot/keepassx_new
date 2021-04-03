@@ -60,7 +60,7 @@ DatabaseTabWidget::DatabaseTabWidget(QWidget* parent)
     connect(this, SIGNAL(currentChanged(int)), SLOT(emitActiveDatabaseChanged()));
     connect(this, SIGNAL(activeDatabaseChanged(DatabaseWidget*)),
             m_dbWidgetStateSync, SLOT(setActive(DatabaseWidget*)));
-    connect(autoType(), SIGNAL(globalAutoTypeTriggered()), SLOT(performGlobalAutoType()));
+    connect(autoType(), SIGNAL(globalAutoTypeTriggered(const QString&)), SLOT(performGlobalAutoType(const QString&)));
     connect(autoType(), SIGNAL(autotypePerformed()), SLOT(relockPendingDatabase()));
     connect(autoType(), SIGNAL(autotypeRejected()), SLOT(relockPendingDatabase()));
     connect(m_databaseOpenDialog.data(), &DatabaseOpenDialog::dialogFinished,
@@ -735,7 +735,7 @@ void DatabaseTabWidget::emitDatabaseLockChanged()
     }
 }
 
-void DatabaseTabWidget::performGlobalAutoType()
+void DatabaseTabWidget::performGlobalAutoType(const QString& search)
 {
     QList<QSharedPointer<Database>> unlockedDatabases;
 
@@ -748,11 +748,13 @@ void DatabaseTabWidget::performGlobalAutoType()
 
     // TODO: allow for database selection during Auto-Type instead of using the current tab
     if (!unlockedDatabases.isEmpty()) {
-        autoType()->performGlobalAutoType(unlockedDatabases);
+        autoType()->performGlobalAutoType(unlockedDatabases, search);
     } else if (count() > 0) {
         if (config()->get(Config::Security_RelockAutoType).toBool()) {
             m_dbWidgetPendingLock = currentDatabaseWidget();
         }
+
+        currentDatabaseWidget()->setSearchStringForAutoType(search);
         unlockDatabaseInDialog(currentDatabaseWidget(), DatabaseOpenDialog::Intent::AutoType);
     }
 }

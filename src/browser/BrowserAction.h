@@ -42,6 +42,7 @@ private:
     QJsonObject handleGetDatabaseGroups(const QJsonObject& json, const QString& action);
     QJsonObject handleCreateNewGroup(const QJsonObject& json, const QString& action);
     QJsonObject handleGetTotp(const QJsonObject& json, const QString& action);
+    QJsonObject handleGlobalAutoType(const QJsonObject& json, const QString& action);
 
     QJsonObject buildMessage(const QString& nonce) const;
     QJsonObject buildResponse(const QString& action, const QJsonObject& message, const QString& nonce);

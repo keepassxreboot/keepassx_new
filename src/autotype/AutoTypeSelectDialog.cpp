@@ -102,6 +102,12 @@ void AutoTypeSelectDialog::setMatches(const QList<AutoTypeMatch>& matches, const
     m_ui->searchCheckBox->setChecked(m_matches.isEmpty());
 }
 
+void AutoTypeSelectDialog::setSearchString(const QString& search)
+{
+    m_ui->search->setText(search);
+    m_ui->searchRadio->setChecked(true);
+}
+
 void AutoTypeSelectDialog::submitAutoTypeMatch(AutoTypeMatch match)
 {
     if (match.first) {
