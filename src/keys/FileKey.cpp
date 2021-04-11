@@ -24,13 +24,6 @@
 
 #include <QFile>
 
-#ifdef Q_OS_WIN
-// Define NOMINMAX macro before including gcrypt.h as
-// it includes windows.h header file which breaks calls
-// to std::min few lines below
-#define NOMINMAX
-#endif
-
 QUuid FileKey::UUID("a584cbc4-c9b4-437e-81bb-362ca9709273");
 
 constexpr int FileKey::SHA256_SIZE;
