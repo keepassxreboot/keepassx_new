@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QSharedPointer>
 
+#undef NOMINMAX
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #define NOGDI
