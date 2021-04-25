@@ -113,20 +113,12 @@ void TestKeePass1Reader::testMasterKey()
 void TestKeePass1Reader::testCustomIcons()
 {
     QCOMPARE(m_db->metadata()->customIconsOrder().size(), 1);
+    QUuid uuid = m_db->metadata()->customIconsOrder().at(0);
+    QVERIFY(m_db->metadata()->hasCustomIcon(uuid));
+    QByteArray icon = m_db->metadata()->customIcon(uuid);
 
-    Entry* entry = m_db->rootGroup()->children().at(1)->entries().at(0);
-
-    QCOMPARE(entry->icon().width(), 16);
-    QCOMPARE(entry->icon().height(), 16);
-
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
-            QRgb rgb = entry->icon().pixel(x, y);
-            QCOMPARE(qRed(rgb), 8);
-            QCOMPARE(qGreen(rgb), 160);
-            QCOMPARE(qBlue(rgb), 60);
-        }
-    }
+    QVERIFY(icon.startsWith(
+        "\x89PNG\r\n\x1A\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\b\x06\x00\x00\x00\x1F\xF3\xFF"));
 }
 
 void TestKeePass1Reader::testGroupExpanded()

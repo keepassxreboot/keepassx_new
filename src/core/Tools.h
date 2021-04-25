@@ -37,7 +37,6 @@ namespace Tools
     QString humanReadableFileSize(qint64 bytes, quint32 precision = 2);
     bool readFromDevice(QIODevice* device, QByteArray& data, int size = 16384);
     bool readAllFromDevice(QIODevice* device, QByteArray& data);
-    QString imageReaderFilter();
     bool isHex(const QByteArray& ba);
     bool isBase64(const QByteArray& ba);
     void sleep(int ms);

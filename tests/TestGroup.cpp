@@ -314,36 +314,34 @@ void TestGroup::testCopyCustomIcon()
     QScopedPointer<Database> dbSource(new Database());
 
     QUuid groupIconUuid = QUuid::createUuid();
-    QImage groupIcon(16, 16, QImage::Format_RGB32);
-    groupIcon.setPixel(0, 0, qRgb(255, 0, 0));
+    QByteArray groupIcon("group icon");
     dbSource->metadata()->addCustomIcon(groupIconUuid, groupIcon);
 
     QUuid entryIconUuid = QUuid::createUuid();
-    QImage entryIcon(16, 16, QImage::Format_RGB32);
-    entryIcon.setPixel(0, 0, qRgb(255, 0, 0));
+    QByteArray entryIcon("entry icon");
     dbSource->metadata()->addCustomIcon(entryIconUuid, entryIcon);
 
     Group* group = new Group();
     group->setParent(dbSource->rootGroup());
     group->setIcon(groupIconUuid);
-    QCOMPARE(group->icon(), groupIcon);
+    QCOMPARE(group->database()->metadata()->customIcon(groupIconUuid), groupIcon);
 
     Entry* entry = new Entry();
     entry->setGroup(dbSource->rootGroup());
     entry->setIcon(entryIconUuid);
-    QCOMPARE(entry->icon(), entryIcon);
+    QCOMPARE(entry->database()->metadata()->customIcon(entryIconUuid), entryIcon);
 
     QScopedPointer<Database> dbTarget(new Database());
 
     group->setParent(dbTarget->rootGroup());
     QVERIFY(dbTarget->metadata()->hasCustomIcon(groupIconUuid));
     QCOMPARE(dbTarget->metadata()->customIcon(groupIconUuid), groupIcon);
-    QCOMPARE(group->icon(), groupIcon);
+    QCOMPARE(group->database()->metadata()->customIcon(groupIconUuid), groupIcon);
 
     entry->setGroup(dbTarget->rootGroup());
     QVERIFY(dbTarget->metadata()->hasCustomIcon(entryIconUuid));
     QCOMPARE(dbTarget->metadata()->customIcon(entryIconUuid), entryIcon);
-    QCOMPARE(entry->icon(), entryIcon);
+    QCOMPARE(entry->database()->metadata()->customIcon(entryIconUuid), entryIcon);
 }
 
 void TestGroup::testClone()
@@ -424,11 +422,9 @@ void TestGroup::testCopyCustomIcons()
     QScopedPointer<Database> dbSource(new Database());
     QScopedPointer<Database> dbTarget(new Database());
 
-    QImage iconImage1(1, 1, QImage::Format_RGB32);
-    iconImage1.setPixel(0, 0, qRgb(1, 2, 3));
+    QByteArray iconImage1("icon 1");
 
-    QImage iconImage2(1, 1, QImage::Format_RGB32);
-    iconImage2.setPixel(0, 0, qRgb(4, 5, 6));
+    QByteArray iconImage2("icon 2");
 
     QScopedPointer<Group> group1(new Group());
     group1->setParent(dbSource->rootGroup());
@@ -468,8 +464,8 @@ void TestGroup::testCopyCustomIcons()
     QVERIFY(metaTarget->hasCustomIcon(entry1IconOld));
     QVERIFY(metaTarget->hasCustomIcon(entry1IconNew));
 
-    QCOMPARE(metaTarget->customIcon(group1Icon).pixel(0, 0), qRgb(1, 2, 3));
-    QCOMPARE(metaTarget->customIcon(group2Icon).pixel(0, 0), qRgb(4, 5, 6));
+    QCOMPARE(metaTarget->customIcon(group1Icon), iconImage1);
+    QCOMPARE(metaTarget->customIcon(group2Icon), iconImage2);
 }
 
 void TestGroup::testFindEntry()
@@ -1134,21 +1130,18 @@ void TestGroup::testApplyGroupIconRecursively()
     // Set an icon per UUID to the subgroup and apply recursively
     // -> all groups and entries except the root group have the same icon
     const QUuid subgroupIconUuid = QUuid::createUuid();
-    QImage subgroupIcon(16, 16, QImage::Format_RGB32);
-    subgroupIcon.setPixel(0, 0, qRgb(255, 0, 0));
+    QByteArray subgroupIcon("subgroup icon");
+
     database.metadata()->addCustomIcon(subgroupIconUuid, subgroupIcon);
     subgroup->setIcon(subgroupIconUuid);
     subgroup->applyGroupIconToChildGroups();
     subgroup->applyGroupIconToChildEntries();
     QVERIFY(database.rootGroup()->iconNumber() == rootIconNumber);
     QCOMPARE(subgroup->iconUuid(), subgroupIconUuid);
-    QCOMPARE(subgroup->icon(), subgroupIcon);
     QCOMPARE(subgroupEntry->iconUuid(), subgroupIconUuid);
-    QCOMPARE(subgroupEntry->icon(), subgroupIcon);
     QCOMPARE(subsubgroup->iconUuid(), subgroupIconUuid);
-    QCOMPARE(subsubgroup->icon(), subgroupIcon);
     QCOMPARE(subsubgroupEntry->iconUuid(), subgroupIconUuid);
-    QCOMPARE(subsubgroupEntry->icon(), subgroupIcon);
+    QCOMPARE(subgroup->database()->metadata()->customIcon(subgroupIconUuid), subgroupIcon);
 
     // Reset all icons to root icon
     database.rootGroup()->setIcon(rootIconNumber);

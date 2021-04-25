@@ -203,8 +203,8 @@ void ReportsWidgetHealthcheck::addHealthRow(QSharedPointer<PasswordHealth> healt
 
     auto row = QList<QStandardItem*>();
     row << new QStandardItem(descr);
-    row << new QStandardItem(entry->iconPixmap(), title);
-    row << new QStandardItem(group->iconPixmap(), group->hierarchy().join("/"));
+    row << new QStandardItem(Icons::entryIconPixmap(entry), title);
+    row << new QStandardItem(Icons::groupIconPixmap(group), group->hierarchy().join("/"));
     row << new QStandardItem(QString::number(health->score()));
     row << new QStandardItem(health->scoreReason());
 

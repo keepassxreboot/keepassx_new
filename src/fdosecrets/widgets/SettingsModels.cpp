@@ -146,7 +146,7 @@ namespace FdoSecrets
             case Qt::DisplayRole:
                 return group->name();
             case Qt::DecorationRole:
-                return group->iconPixmap();
+                return Icons::groupIconPixmap(group);
             case Qt::FontRole:
                 if (group->isExpired()) {
                     QFont font;

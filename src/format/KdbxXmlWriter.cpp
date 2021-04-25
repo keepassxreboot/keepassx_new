@@ -162,19 +162,12 @@ void KdbxXmlWriter::writeCustomIcons()
     m_xml.writeEndElement();
 }
 
-void KdbxXmlWriter::writeIcon(const QUuid& uuid, const QImage& icon)
+void KdbxXmlWriter::writeIcon(const QUuid& uuid, const QByteArray& icon)
 {
     m_xml.writeStartElement("Icon");
 
     writeUuid("UUID", uuid);
-
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    // TODO: check !icon.save()
-    icon.save(&buffer, "PNG");
-    buffer.close();
-    writeBinary("Data", ba);
+    writeBinary("Data", icon);
 
     m_xml.writeEndElement();
 }

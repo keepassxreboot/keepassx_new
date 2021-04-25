@@ -27,7 +27,6 @@
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QIODevice>
-#include <QImageReader>
 #include <QLocale>
 #include <QRegularExpression>
 #include <QStringList>
@@ -176,24 +175,6 @@ namespace Tools
             data = result;
             return true;
         }
-    }
-
-    QString imageReaderFilter()
-    {
-        const QList<QByteArray> formats = QImageReader::supportedImageFormats();
-        QStringList formatsStringList;
-
-        for (const QByteArray& format : formats) {
-            for (char codePoint : format) {
-                if (!QChar(codePoint).isLetterOrNumber()) {
-                    continue;
-                }
-            }
-
-            formatsStringList.append("*." + QString::fromLatin1(format).toLower());
-        }
-
-        return formatsStringList.join(" ");
     }
 
     bool isHex(const QByteArray& ba)

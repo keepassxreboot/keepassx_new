@@ -46,13 +46,6 @@
 static const auto TRUE_STR = QStringLiteral("true");
 static const auto FALSE_STR = QStringLiteral("false");
 
-enum IconSize
-{
-    Default,
-    Medium,
-    Large
-};
-
 enum class AuthDecision
 {
     Undecided,

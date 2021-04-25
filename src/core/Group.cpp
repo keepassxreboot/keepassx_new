@@ -21,14 +21,9 @@
 
 #include "core/Clock.h"
 #include "core/Config.h"
-#include "core/DatabaseIcons.h"
 #include "core/Global.h"
 #include "core/Metadata.h"
 #include "core/Tools.h"
-
-#ifdef WITH_XC_KEESHARE
-#include "keeshare/KeeShare.h"
-#endif
 
 #include <QtConcurrent>
 
@@ -123,44 +118,6 @@ QString Group::name() const
 QString Group::notes() const
 {
     return m_data.notes;
-}
-
-QImage Group::icon() const
-{
-    if (m_data.customIcon.isNull()) {
-        return databaseIcons()->icon(m_data.iconNumber).toImage();
-    } else {
-        Q_ASSERT(m_db);
-        if (m_db) {
-            return m_db->metadata()->customIcon(m_data.customIcon);
-        } else {
-            return QImage();
-        }
-    }
-}
-
-QPixmap Group::iconPixmap(IconSize size) const
-{
-    QPixmap icon(size, size);
-    if (m_data.customIcon.isNull()) {
-        icon = databaseIcons()->icon(m_data.iconNumber, size);
-    } else {
-        Q_ASSERT(m_db);
-        if (m_db) {
-            icon = m_db->metadata()->customIconPixmap(m_data.customIcon, size);
-        }
-    }
-
-    if (isExpired()) {
-        icon = databaseIcons()->applyBadge(icon, DatabaseIcons::Badges::Expired);
-    }
-#ifdef WITH_XC_KEESHARE
-    else if (KeeShare::isShared(this)) {
-        icon = KeeShare::indicatorBadge(this, icon);
-    }
-#endif
-
-    return icon;
 }
 
 int Group::iconNumber() const
@@ -442,7 +399,7 @@ void Group::setParent(Group* parent, int index)
             // copy custom icon to the new database
             if (!iconUuid().isNull() && parent->m_db && m_db->metadata()->hasCustomIcon(iconUuid())
                 && !parent->m_db->metadata()->hasCustomIcon(iconUuid())) {
-                parent->m_db->metadata()->addCustomIcon(iconUuid(), icon());
+                parent->m_db->metadata()->addCustomIcon(iconUuid(), m_db->metadata()->customIcon(iconUuid()));
             }
         }
         if (m_db != parent->m_db) {

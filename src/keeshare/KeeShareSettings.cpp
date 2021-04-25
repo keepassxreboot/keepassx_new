@@ -19,10 +19,10 @@
 
 #include "core/CustomData.h"
 #include "core/Database.h"
-#include "core/DatabaseIcons.h"
 #include "core/Group.h"
 #include "core/Metadata.h"
 #include "crypto/Random.h"
+#include "gui/DatabaseIcons.h"
 #include "keeshare/Signature.h"
 
 #include <QMessageBox>

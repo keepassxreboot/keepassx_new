@@ -998,8 +998,7 @@ void TestMerge::testUpdateGroup()
     groupSourceInitial->setName("group2 renamed");
     groupSourceInitial->setNotes("updated notes");
     QUuid customIconId = QUuid::createUuid();
-    QImage customIcon;
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
+    dbSource->metadata()->addCustomIcon(customIconId, QString("custom icon").toLocal8Bit());
     groupSourceInitial->setIcon(customIconId);
 
     QPointer<Entry> entrySourceInitial = dbSource->rootGroup()->findEntryByPath("entry1");
@@ -1113,9 +1112,8 @@ void TestMerge::testMergeCustomIcons()
     m_clock->advanceSecond(1);
 
     QUuid customIconId = QUuid::createUuid();
-    QImage customIcon;
 
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
+    dbSource->metadata()->addCustomIcon(customIconId, QString("custom icon").toLocal8Bit());
     // Sanity check.
     QVERIFY(dbSource->metadata()->hasCustomIcon(customIconId));
 
@@ -1138,10 +1136,12 @@ void TestMerge::testMergeDuplicateCustomIcons()
     m_clock->advanceSecond(1);
 
     QUuid customIconId = QUuid::createUuid();
-    QImage customIcon;
 
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
-    dbDestination->metadata()->addCustomIcon(customIconId, customIcon);
+    QByteArray customIcon1 = QString("custom icon 1").toLocal8Bit();
+    QByteArray customIcon2 = QString("custom icon 2").toLocal8Bit();
+
+    dbSource->metadata()->addCustomIcon(customIconId, customIcon1);
+    dbDestination->metadata()->addCustomIcon(customIconId, customIcon2);
     // Sanity check.
     QVERIFY(dbSource->metadata()->hasCustomIcon(customIconId));
     QVERIFY(dbDestination->metadata()->hasCustomIcon(customIconId));
@@ -1153,6 +1153,7 @@ void TestMerge::testMergeDuplicateCustomIcons()
 
     QVERIFY(dbDestination->metadata()->hasCustomIcon(customIconId));
     QCOMPARE(dbDestination->metadata()->customIconsOrder().count(), 1);
+    QCOMPARE(dbDestination->metadata()->customIcon(customIconId), customIcon2);
 }
 
 void TestMerge::testMetadata()

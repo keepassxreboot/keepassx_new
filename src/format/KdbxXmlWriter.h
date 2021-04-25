@@ -19,7 +19,6 @@
 #define KEEPASSX_KDBXXMLWRITER_H
 
 #include <QDateTime>
-#include <QImage>
 #include <QXmlStreamWriter>
 
 #include "core/Database.h"
@@ -51,7 +50,7 @@ private:
     void writeMetadata();
     void writeMemoryProtection();
     void writeCustomIcons();
-    void writeIcon(const QUuid& uuid, const QImage& icon);
+    void writeIcon(const QUuid& uuid, const QByteArray& icon);
     void writeBinaries();
     void writeCustomData(const CustomData* customData);
     void writeCustomDataItem(const QString& key, const QString& value);

@@ -257,11 +257,11 @@ if(CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
 endif()
 
 if (NOT HAIKU)
-if((CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8.999) OR CMAKE_COMPILER_IS_CLANGXX)
-    add_gcc_compiler_flags("-fstack-protector-strong")
-else()
-    add_gcc_compiler_flags("-fstack-protector --param=ssp-buffer-size=4")
-endif()
+    if((CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8.999) OR CMAKE_COMPILER_IS_CLANGXX)
+        add_gcc_compiler_flags("-fstack-protector-strong")
+    else()
+        add_gcc_compiler_flags("-fstack-protector --param=ssp-buffer-size=4")
+    endif()
 endif()
 
 add_gcc_compiler_cxxflags("-Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual")
@@ -437,7 +437,7 @@ elseif(MINGW)
     message(STATUS "Using windeployqt: ${WINDEPLOYQT_EXE}")
 endif()
 
-# Debian sets the the build type to None for package builds.
+# Debian sets the build type to None for package builds.
 # Make sure we don't enable asserts there.
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_NONE QT_NO_DEBUG)
 

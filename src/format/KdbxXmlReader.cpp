@@ -18,7 +18,6 @@
 #include "KdbxXmlReader.h"
 #include "KeePass2RandomStream.h"
 #include "core/Clock.h"
-#include "core/DatabaseIcons.h"
 #include "core/Endian.h"
 #include "core/Entry.h"
 #include "core/Global.h"
@@ -350,7 +349,7 @@ void KdbxXmlReader::parseIcon()
     Q_ASSERT(m_xml.isStartElement() && m_xml.name() == "Icon");
 
     QUuid uuid;
-    QImage icon;
+    QByteArray icon;
     bool uuidSet = false;
     bool iconSet = false;
 
@@ -359,7 +358,7 @@ void KdbxXmlReader::parseIcon()
             uuid = readUuid();
             uuidSet = !uuid.isNull();
         } else if (m_xml.name() == "Data") {
-            icon.loadFromData(readBinary());
+            icon = readBinary();
             iconSet = true;
         } else {
             skipCurrentElement();
@@ -513,9 +512,6 @@ Group* KdbxXmlReader::parseGroup()
                     raiseError(tr("Invalid group icon number"));
                 }
                 iconId = 0;
-            } else if (iconId >= databaseIcons()->count()) {
-                qWarning("KdbxXmlReader::parseGroup: icon id \"%d\" not supported", iconId);
-                iconId = databaseIcons()->count() - 1;
             }
 
             group->setIcon(iconId);

@@ -41,7 +41,6 @@ set(keepassx_SOURCES
         core/CsvParser.cpp
         core/CustomData.cpp
         core/Database.cpp
-        core/DatabaseIcons.cpp
         core/Entry.cpp
         core/EntryAttachments.cpp
         core/EntryAttributes.cpp
@@ -71,7 +70,6 @@ set(keepassx_SOURCES
         crypto/kdf/AesKdf.cpp
         crypto/kdf/Argon2Kdf.cpp
         format/CsvExporter.cpp
-        format/HtmlExporter.cpp
         format/KeePass1Reader.cpp
         format/KeePass2.cpp
         format/KeePass2RandomStream.cpp
@@ -101,6 +99,7 @@ set(keepassx_SOURCES
         gui/CategoryListWidget.cpp
         gui/Clipboard.cpp
         gui/CloneDialog.cpp
+        gui/DatabaseIcons.cpp
         gui/DatabaseOpenWidget.cpp
         gui/DatabaseTabWidget.cpp
         gui/DatabaseWidget.cpp
@@ -113,6 +112,7 @@ set(keepassx_SOURCES
         gui/EditWidgetProperties.cpp
         gui/FileDialog.cpp
         gui/Font.cpp
+        gui/HtmlExporter.cpp
         gui/IconModels.cpp
         gui/KeePass1OpenWidget.cpp
         gui/KMessageWidget.cpp

@@ -19,7 +19,6 @@
 
 #include "core/Config.h"
 #include "core/Database.h"
-#include "core/DatabaseIcons.h"
 #include "core/Group.h"
 #include "core/Metadata.h"
 #include "core/PasswordHealth.h"
@@ -157,40 +156,6 @@ const QUuid& Entry::uuid() const
 const QString Entry::uuidToHex() const
 {
     return Tools::uuidToHex(m_uuid);
-}
-
-QImage Entry::icon() const
-{
-    if (m_data.customIcon.isNull()) {
-        return databaseIcons()->icon(m_data.iconNumber).toImage();
-    } else {
-        Q_ASSERT(database());
-
-        if (database()) {
-            return database()->metadata()->customIcon(m_data.customIcon);
-        } else {
-            return QImage();
-        }
-    }
-}
-
-QPixmap Entry::iconPixmap(IconSize size) const
-{
-    QPixmap icon(size, size);
-    if (m_data.customIcon.isNull()) {
-        icon = databaseIcons()->icon(m_data.iconNumber, size);
-    } else {
-        Q_ASSERT(database());
-        if (database()) {
-            icon = database()->metadata()->customIconPixmap(m_data.customIcon, size);
-        }
-    }
-
-    if (isExpired()) {
-        icon = databaseIcons()->applyBadge(icon, DatabaseIcons::Badges::Expired);
-    }
-
-    return icon;
 }
 
 int Entry::iconNumber() const
@@ -1217,7 +1182,8 @@ void Entry::setGroup(Group* group)
             // copy custom icon to the new database
             if (!iconUuid().isNull() && group->database() && m_group->database()->metadata()->hasCustomIcon(iconUuid())
                 && !group->database()->metadata()->hasCustomIcon(iconUuid())) {
-                group->database()->metadata()->addCustomIcon(iconUuid(), icon());
+                group->database()->metadata()->addCustomIcon(iconUuid(),
+                                                             m_group->database()->metadata()->customIcon(iconUuid()));
             }
         }
     }

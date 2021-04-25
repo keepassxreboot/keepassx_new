@@ -24,6 +24,7 @@
 #include "core/Global.h"
 #include "core/Group.h"
 #include "core/Metadata.h"
+#include "gui/Icons.h"
 
 namespace
 {
@@ -139,7 +140,7 @@ bool HtmlExporter::writeGroup(QIODevice& device, const Group& group, QString pat
 
         // Header line
         auto header = QString("<hr><h2>");
-        header.append(PixmapToHTML(group.iconPixmap(IconSize::Medium)));
+        header.append(PixmapToHTML(Icons::groupIconPixmap(&group, IconSize::Medium)));
         header.append("&nbsp;");
         header.append(path);
         header.append("</h2>\n");
@@ -236,7 +237,7 @@ bool HtmlExporter::writeGroup(QIODevice& device, const Group& group, QString pat
         // Output it into our table. First the left side with
         // icon and entry title ...
         table += "<tr>";
-        table += "<td width=\"1%\">" + PixmapToHTML(entry->iconPixmap(IconSize::Medium)) + "</td>";
+        table += "<td width=\"1%\">" + PixmapToHTML(Icons::entryIconPixmap(entry, IconSize::Medium)) + "</td>";
         table += "<td width=\"19%\" valign=\"top\"><h3>" + entry->title().toHtmlEscaped() + "</h3></td>";
 
         // ... then the right side with the data fields

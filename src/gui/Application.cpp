@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QFileOpenEvent>
 #include <QLockFile>
+#include <QPixmapCache>
 #include <QSocketNotifier>
 #include <QStandardPaths>
 #include <QtNetwork/QLocalSocket>

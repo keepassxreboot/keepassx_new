@@ -25,6 +25,7 @@
 #include "core/Group.h"
 #include "core/Metadata.h"
 #include "gui/IconModels.h"
+#include "gui/Icons.h"
 #include "gui/MessageBox.h"
 
 DatabaseSettingsWidgetMaintenance::DatabaseSettingsWidgetMaintenance(QWidget* parent)
@@ -51,7 +52,7 @@ DatabaseSettingsWidgetMaintenance::~DatabaseSettingsWidgetMaintenance()
 
 void DatabaseSettingsWidgetMaintenance::populateIcons(QSharedPointer<Database> db)
 {
-    m_customIconModel->setIcons(db->metadata()->customIconsPixmaps(IconSize::Default),
+    m_customIconModel->setIcons(Icons::customIconsPixmaps(db.data(), IconSize::Default),
                                 db->metadata()->customIconsOrder());
     m_ui->deleteButton->setEnabled(false);
 }

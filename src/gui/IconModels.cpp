@@ -19,7 +19,7 @@
 
 #include <QUuid>
 
-#include "core/DatabaseIcons.h"
+#include "gui/DatabaseIcons.h"
 
 DefaultIconModel::DefaultIconModel(QObject* parent)
     : QAbstractListModel(parent)

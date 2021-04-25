@@ -18,8 +18,14 @@
 #ifndef KEEPASSX_DATABASEICONS_H
 #define KEEPASSX_DATABASEICONS_H
 
-#include "core/Global.h"
 #include <QIcon>
+
+enum IconSize
+{
+    Default,
+    Medium,
+    Large
+};
 
 class DatabaseIcons
 {

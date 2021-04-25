@@ -20,14 +20,20 @@
 
 #include <QBitmap>
 #include <QIconEngine>
+#include <QImageReader>
 #include <QPaintDevice>
 #include <QPainter>
 #include <QStyle>
 
 #include "config-keepassx.h"
 #include "core/Config.h"
+#include "gui/DatabaseIcons.h"
 #include "gui/MainWindow.h"
 #include "gui/osutils/OSUtils.h"
+
+#ifdef WITH_XC_KEESHARE
+#include "keeshare/KeeShare.h"
+#endif
 
 class AdaptiveIconEngine : public QIconEngine
 {
@@ -210,4 +216,133 @@ Icons* Icons::instance()
     }
 
     return m_instance;
+}
+
+QImage Icons::customIcon(const Database* db, const QUuid& uuid)
+{
+    QByteArray rawIcon = db->metadata()->customIcon(uuid);
+    return QImage::fromData(rawIcon);
+}
+
+QPixmap Icons::customIconPixmap(const Database* db, const QUuid& uuid, IconSize size)
+{
+    if (!db->metadata()->hasCustomIcon(uuid)) {
+        return {};
+    }
+    QImage icon = Icons::customIcon(db, uuid);
+    // Generate QIcon with pre-baked resolutions
+    auto basePixmap = QPixmap::fromImage(icon.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    return QIcon(basePixmap).pixmap(databaseIcons()->iconSize(size));
+}
+
+QHash<QUuid, QPixmap> Icons::customIconsPixmaps(const Database* db, IconSize size)
+{
+    QHash<QUuid, QPixmap> result;
+
+    for (const QUuid& uuid : db->metadata()->customIconsOrder()) {
+        result.insert(uuid, Icons::customIconPixmap(db, uuid, size));
+    }
+
+    return result;
+}
+
+QImage Icons::entryIcon(const Entry* entry)
+{
+    if (entry->iconUuid().isNull()) {
+        return databaseIcons()->icon(entry->iconNumber()).toImage();
+    } else {
+        Q_ASSERT(entry->database());
+
+        if (entry->database()) {
+            return Icons::customIcon(entry->database(), entry->iconUuid());
+        } else {
+            return QImage();
+        }
+    }
+}
+
+QPixmap Icons::entryIconPixmap(const Entry* entry, IconSize size)
+{
+    QPixmap icon(size, size);
+    if (entry->iconUuid().isNull()) {
+        icon = databaseIcons()->icon(entry->iconNumber(), size);
+    } else {
+        Q_ASSERT(entry->database());
+        if (entry->database()) {
+            icon = Icons::customIconPixmap(entry->database(), entry->iconUuid(), size);
+        }
+    }
+
+    if (entry->isExpired()) {
+        icon = databaseIcons()->applyBadge(icon, DatabaseIcons::Badges::Expired);
+    }
+
+    return icon;
+}
+
+QImage Icons::groupIcon(const Group* group)
+{
+    if (group->iconUuid().isNull()) {
+        return databaseIcons()->icon(group->iconNumber()).toImage();
+    } else {
+        Q_ASSERT(group->database());
+        if (group->database()) {
+            return Icons::customIcon(group->database(), group->iconUuid());
+        } else {
+            return QImage();
+        }
+    }
+}
+
+QPixmap Icons::groupIconPixmap(const Group* group, IconSize size)
+{
+    QPixmap icon(size, size);
+    if (group->iconUuid().isNull()) {
+        icon = databaseIcons()->icon(group->iconNumber(), size);
+    } else {
+        Q_ASSERT(group->database());
+        if (group->database()) {
+            icon = Icons::customIconPixmap(group->database(), group->iconUuid(), size);
+        }
+    }
+
+    if (group->isExpired()) {
+        icon = databaseIcons()->applyBadge(icon, DatabaseIcons::Badges::Expired);
+    }
+#ifdef WITH_XC_KEESHARE
+    else if (KeeShare::isShared(group)) {
+        icon = KeeShare::indicatorBadge(group, icon);
+    }
+#endif
+
+    return icon;
+}
+
+QString Icons::imageReaderFilter()
+{
+    const QList<QByteArray> formats = QImageReader::supportedImageFormats();
+    QStringList formatsStringList;
+
+    for (const QByteArray& format : formats) {
+        for (char codePoint : format) {
+            if (!QChar(codePoint).isLetterOrNumber()) {
+                continue;
+            }
+        }
+
+        formatsStringList.append("*." + QString::fromLatin1(format).toLower());
+    }
+
+    return formatsStringList.join(" ");
+}
+
+QByteArray Icons::saveToBytes(const QImage& image)
+{
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    // TODO: check !icon.save()
+    image.save(&buffer, "PNG");
+    buffer.close();
+    return ba;
 }

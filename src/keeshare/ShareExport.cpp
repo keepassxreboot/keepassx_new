@@ -19,6 +19,7 @@
 #include "core/Group.h"
 #include "core/Metadata.h"
 #include "format/KeePass2Writer.h"
+#include "gui/Icons.h"
 #include "keeshare/KeeShare.h"
 #include "keeshare/Signature.h"
 #include "keys/PasswordKey.h"
@@ -81,7 +82,7 @@ namespace
             targetEntry->setUpdateTimeinfo(updateTimeinfoEntry);
             const auto iconUuid = targetEntry->iconUuid();
             if (!iconUuid.isNull() && !targetMetadata->hasCustomIcon(iconUuid)) {
-                targetMetadata->addCustomIcon(iconUuid, sourceEntry->icon());
+                targetMetadata->addCustomIcon(iconUuid, sourceEntry->database()->metadata()->customIcon(iconUuid));
             }
         }
 

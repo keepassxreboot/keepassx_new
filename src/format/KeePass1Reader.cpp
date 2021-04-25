@@ -18,7 +18,6 @@
 #include "KeePass1Reader.h"
 
 #include <QFile>
-#include <QImage>
 #include <QTextCodec>
 
 #include "core/Database.h"
@@ -862,12 +861,8 @@ bool KeePass1Reader::parseCustomIcons4(const QByteArray& data)
         if (static_cast<quint32>(data.size()) < (pos + iconSize)) {
             return false;
         }
-        QImage icon = QImage::fromData(data.mid(pos, iconSize));
+        QByteArray icon = data.mid(pos, iconSize);
         pos += iconSize;
-
-        if (icon.width() != 16 || icon.height() != 16) {
-            icon = icon.scaled(16, 16);
-        }
 
         QUuid uuid = QUuid::createUuid();
         iconUuids.append(uuid);

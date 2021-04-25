@@ -60,6 +60,7 @@ QPixmap DatabaseIcons::icon(int index, IconSize size)
 {
     if (index < 0 || index >= count()) {
         qWarning("DatabaseIcons::icon: invalid icon index %d", index);
+        // TODO should the index default to (count() - 1) instead, like was previously done in KdbxXmlReader???
         return {};
     }
 
