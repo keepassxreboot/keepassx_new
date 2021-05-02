@@ -36,7 +36,6 @@
 #include "core/EntrySearcher.h"
 #include "core/Group.h"
 #include "core/Metadata.h"
-#include "core/PasswordGenerator.h"
 #include "core/Tools.h"
 #include "gui/MainWindow.h"
 #include "gui/MessageBox.h"
@@ -311,6 +310,28 @@ QString BrowserService::getCurrentTotp(const QString& uuid)
     }
 
     return {};
+}
+
+PasswordGeneratorWidget* BrowserService::showPasswordGenerator(const QJsonObject& errorMessage)
+{
+    if (!m_passwordGenerator) {
+        m_passwordGenerator.reset(PasswordGeneratorWidget::popupGenerator());
+
+        connect(m_passwordGenerator.data(), &PasswordGeneratorWidget::closed, [=]() {
+            m_passwordGenerator.reset();
+            m_browserHost->sendClientMessage(errorMessage);
+            hideWindow();
+        });
+    }
+
+    raiseWindow();
+    return m_passwordGenerator.data();
+}
+
+void BrowserService::sendPassword(const QJsonObject& message)
+{
+    m_browserHost->sendClientMessage(message);
+    hideWindow();
 }
 
 QString BrowserService::storeKey(const QString& key)
