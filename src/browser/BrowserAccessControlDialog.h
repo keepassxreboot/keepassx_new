@@ -49,7 +49,6 @@ signals:
 
 private slots:
     void selectionChanged();
-    void doubleClick();
 
 private:
     QScopedPointer<Ui::BrowserAccessControlDialog> m_ui;
