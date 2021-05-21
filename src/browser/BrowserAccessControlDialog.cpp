@@ -31,9 +31,11 @@ BrowserAccessControlDialog::BrowserAccessControlDialog(QWidget* parent)
 
     connect(m_ui->allowButton, SIGNAL(clicked()), SLOT(accept()));
     connect(m_ui->denyButton, SIGNAL(clicked()), SLOT(reject()));
-    connect(m_ui->itemsTable, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(accept()));
-    connect(m_ui->itemsTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged()));
+    connect(m_ui->itemsTable, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(accept()));
+    connect(m_ui->itemsTable->selectionModel(),
+            SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this,
+            SLOT(selectionChanged()));
 }
 
 BrowserAccessControlDialog::~BrowserAccessControlDialog()
@@ -114,7 +116,7 @@ void BrowserAccessControlDialog::selectionChanged()
 {
     auto indexes = m_ui->itemsTable->selectionModel()->selectedIndexes();
     m_ui->allowButton->setEnabled(!indexes.isEmpty());
-    
+
     if (indexes.isEmpty()) {
         m_ui->allowButton->clearFocus();
         m_ui->denyButton->setFocus();
