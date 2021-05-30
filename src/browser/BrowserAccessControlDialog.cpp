@@ -51,7 +51,6 @@ void BrowserAccessControlDialog::setItems(const QList<Entry*>& items, const QStr
     m_ui->siteLabel->setText(m_ui->siteLabel->text().arg(
         url.toDisplayString(QUrl::RemoveUserInfo | QUrl::RemovePath | QUrl::RemoveQuery | QUrl::RemoveFragment)));
 
-
     m_ui->rememberDecisionCheckBox->setVisible(!httpAuth);
     m_ui->rememberDecisionCheckBox->setChecked(false);
 
