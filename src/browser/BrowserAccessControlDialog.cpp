@@ -20,6 +20,7 @@
 #include "ui_BrowserAccessControlDialog.h"
 
 #include "core/Entry.h"
+#include "gui/Icons.h"
 
 BrowserAccessControlDialog::BrowserAccessControlDialog(QWidget* parent)
     : QDialog(parent)
@@ -31,6 +32,8 @@ BrowserAccessControlDialog::BrowserAccessControlDialog(QWidget* parent)
 
     connect(m_ui->allowButton, SIGNAL(clicked()), SLOT(accept()));
     connect(m_ui->denyButton, SIGNAL(clicked()), SLOT(reject()));
+    connect(m_ui->selectAllButton, SIGNAL(clicked()), this, SLOT(selectAll()));
+    connect(m_ui->selectNoneButton, SIGNAL(clicked()), this, SLOT(selectNone()));
     connect(m_ui->itemsTable, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(accept()));
     connect(m_ui->itemsTable->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
@@ -48,6 +51,7 @@ void BrowserAccessControlDialog::setItems(const QList<Entry*>& items, const QStr
     m_ui->siteLabel->setText(m_ui->siteLabel->text().arg(
         url.toDisplayString(QUrl::RemoveUserInfo | QUrl::RemovePath | QUrl::RemoveQuery | QUrl::RemoveFragment)));
 
+
     m_ui->rememberDecisionCheckBox->setVisible(!httpAuth);
     m_ui->rememberDecisionCheckBox->setChecked(false);
 
@@ -62,7 +66,9 @@ void BrowserAccessControlDialog::setItems(const QList<Entry*>& items, const QStr
         item->setFlags(item->flags() | Qt::ItemIsSelectable);
         m_ui->itemsTable->setItem(row, 0, item);
 
-        auto disableButton = new QPushButton(tr("Disable for this site"));
+        auto disableButton = new QPushButton();
+        disableButton->setToolTip(tr("Disable for this site"));
+        disableButton->setIcon(icons()->icon("dialog-close"));
         disableButton->setAutoDefault(false);
         connect(disableButton, &QAbstractButton::pressed, [&, item] {
             emit disableAccess(item);
@@ -121,4 +127,13 @@ void BrowserAccessControlDialog::selectionChanged()
         m_ui->allowButton->clearFocus();
         m_ui->denyButton->setFocus();
     }
+}
+void BrowserAccessControlDialog::selectAll()
+{
+    m_ui->itemsTable->selectAll();
+}
+
+void BrowserAccessControlDialog::selectNone()
+{
+    m_ui->itemsTable->clearSelection();
 }

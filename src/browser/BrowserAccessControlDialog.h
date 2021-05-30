@@ -49,6 +49,8 @@ signals:
 
 private slots:
     void selectionChanged();
+    void selectAll();
+    void selectNone();
 
 private:
     QScopedPointer<Ui::BrowserAccessControlDialog> m_ui;
