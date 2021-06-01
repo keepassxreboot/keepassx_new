@@ -33,7 +33,6 @@
 #include "fdosecrets/DatabaseSettingsPageFdoSecrets.h"
 #endif
 
-#include "core/Config.h"
 #include "core/Database.h"
 #include "core/Global.h"
 #include "gui/Icons.h"
@@ -110,7 +109,6 @@ DatabaseSettingsDialog::DatabaseSettingsDialog(QWidget* parent)
 
     connect(m_securityTabWidget, SIGNAL(currentChanged(int)), SLOT(pageChanged()));
     connect(m_ui->categoryList, SIGNAL(categoryChanged(int)), m_ui->stackedWidget, SLOT(setCurrentIndex(int)));
-    connect(m_ui->advancedSettingsToggle, SIGNAL(toggled(bool)), SLOT(toggleAdvancedMode(bool)));
 
 #ifdef WITH_XC_BROWSER
     m_ui->categoryList->addCategory(tr("Browser Integration"), icons()->icon("internet-web-browser"));
@@ -140,7 +138,6 @@ void DatabaseSettingsDialog::load(const QSharedPointer<Database>& db)
     for (const ExtraPage& page : asConst(m_extraPages)) {
         page.loadSettings(db);
     }
-    m_ui->advancedSettingsToggle->setChecked(config()->get(Config::GUI_AdvancedSettings).toBool());
     m_db = db;
 }
 
@@ -196,32 +193,5 @@ void DatabaseSettingsDialog::reject()
 
 void DatabaseSettingsDialog::pageChanged()
 {
-    int pageIndex = m_ui->stackedWidget->currentIndex();
-
-    bool enabled = (pageIndex == Page::General && m_generalWidget->hasAdvancedMode());
-
-    if (Page::Security == pageIndex) {
-        int tabIndex = m_securityTabWidget->currentIndex();
-        enabled = (tabIndex == 0 && m_databaseKeyWidget->hasAdvancedMode());
-        enabled |= (tabIndex == 1 && m_encryptionWidget->hasAdvancedMode());
-    }
-
-    m_ui->advancedSettingsToggle->setEnabled(enabled);
-}
-
-void DatabaseSettingsDialog::toggleAdvancedMode(bool advanced)
-{
-    if (m_generalWidget->hasAdvancedMode()) {
-        m_generalWidget->setAdvancedMode(advanced);
-    }
-
-    if (m_databaseKeyWidget->hasAdvancedMode()) {
-        m_databaseKeyWidget->setAdvancedMode(advanced);
-    }
-
-    if (m_encryptionWidget->hasAdvancedMode()) {
-        m_encryptionWidget->setAdvancedMode(advanced);
-    }
-
-    config()->set(Config::GUI_AdvancedSettings, advanced);
+    m_ui->stackedWidget->currentIndex();
 }

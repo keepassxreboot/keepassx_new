@@ -44,12 +44,12 @@ public:
     {
         return true;
     }
-    void setAdvancedMode(bool advanced) override;
 
 public slots:
     void initialize() override;
     void uninitialize() override;
     bool save() override;
+    void setAdvancedMode(bool advanced) override;
 
     static QString getTextualEncryptionTime(int millisecs);
 
