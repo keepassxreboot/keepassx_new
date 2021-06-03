@@ -86,6 +86,7 @@ namespace Totp
                           const QString& username = {},
                           bool forceOtp = false);
 
+    quint64 secondsLeft(const QSharedPointer<Totp::Settings>& settings);
     QString generateTotp(const QSharedPointer<Totp::Settings>& settings, const quint64 time = 0ull);
 
     QList<QPair<QString, QString>> supportedEncoders();

@@ -539,6 +539,14 @@ QString Entry::totp() const
     return {};
 }
 
+quint64 Entry::totpSecondsLeft() const
+{
+    if (hasTotp()) {
+        return Totp::secondsLeft(m_data.totpSettings);
+    }
+    return {};
+}
+
 void Entry::setTotp(QSharedPointer<Totp::Settings> settings)
 {
     beginUpdate();

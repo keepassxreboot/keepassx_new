@@ -99,6 +99,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     , m_keepass1OpenWidget(new KeePass1OpenWidget(this))
     , m_opVaultOpenWidget(new OpVaultOpenWidget(this))
     , m_groupView(new GroupView(m_db.data(), m_mainSplitter))
+    , m_totpTimer(new QTimer(this))
     , m_saveAttempts(0)
     , m_entrySearcher(new EntrySearcher(false))
 {
@@ -633,6 +634,16 @@ void DatabaseWidget::setClipboardTextAndMinimize(const QString& text)
     }
 }
 
+void DatabaseWidget::pollToptOrStopAndDisconnect(Entry* e)
+{
+    auto clipboardTimeout = config()->get(Config::Security_ClearClipboardTimeout).toInt();
+    if (clipboard()->secondsElapsed() < clipboardTimeout) {
+        setClipboardTextAndMinimize(e->totp());
+    }
+    m_totpTimer->stop();
+    disconnect(m_totpTimer);
+}
+
 #ifdef WITH_XC_SSHAGENT
 void DatabaseWidget::addToAgent()
 {
@@ -1138,6 +1149,8 @@ void DatabaseWidget::entryActivationSignalReceived(Entry* entry, EntryModel::Mod
     case EntryModel::Totp:
         if (entry->hasTotp()) {
             setClipboardTextAndMinimize(entry->totp());
+            m_totpTimer->start(entry->totpSecondsLeft() * 1000);
+            connect(m_totpTimer, &QTimer::timeout, this, [=]() { this->pollToptOrStopAndDisconnect(entry); });
         } else {
             setupTotp();
         }

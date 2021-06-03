@@ -84,6 +84,11 @@ void Clipboard::setText(const QString& text, bool clear)
     }
 }
 
+int Clipboard::secondsElapsed()
+{
+    return m_secondsElapsed;
+}
+
 void Clipboard::clearCopiedText()
 {
     m_timer->stop();

@@ -257,6 +257,7 @@ private:
     void openDatabaseFromEntry(const Entry* entry, bool inBackground = true);
     void performIconDownloads(const QList<Entry*>& entries, bool force = false);
     bool performSave(QString& errorMessage, const QString& fileName = {});
+    void pollToptOrStopAndDisconnect(Entry* entry);
 
     QSharedPointer<Database> m_db;
 
@@ -282,6 +283,8 @@ private:
     QScopedPointer<Group> m_newGroup;
     QScopedPointer<Entry> m_newEntry;
     QPointer<Group> m_newParent;
+
+    QPointer<QTimer> m_totpTimer;
 
     QUuid m_groupBeforeLock;
     QUuid m_entryBeforeLock;

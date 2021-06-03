@@ -24,6 +24,7 @@
 #include <QPixmap>
 #include <QPointer>
 #include <QSet>
+#include <QTimer>
 #include <QUrl>
 #include <QUuid>
 
@@ -110,6 +111,7 @@ public:
     QString notes() const;
     QString attribute(const QString& key) const;
     QString totp() const;
+    quint64 totpSecondsLeft() const;
     QString totpSettingsString() const;
     QSharedPointer<Totp::Settings> totpSettings() const;
     int size() const;
@@ -291,6 +293,8 @@ private:
     bool m_modifiedSinceBegin;
     QPointer<Group> m_group;
     bool m_updateTimeinfo;
+
+    QTimer totptimer;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Entry::CloneFlags)

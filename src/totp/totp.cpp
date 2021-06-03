@@ -182,6 +182,13 @@ QString Totp::writeSettings(const QSharedPointer<Totp::Settings>& settings,
     }
 }
 
+quint64 Totp::secondsLeft(const QSharedPointer<Totp::Settings>& settings)
+{
+    const Encoder& encoder = settings->encoder;
+    uint step = settings->custom ? settings->step : encoder.step;
+    return step - (qToBigEndian(static_cast<quint64>(Clock::currentSecondsSinceEpoch())) % step);
+}
+
 QString Totp::generateTotp(const QSharedPointer<Totp::Settings>& settings, const quint64 time)
 {
     Q_ASSERT(!settings.isNull());
