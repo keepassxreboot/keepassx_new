@@ -69,6 +69,10 @@ public:
     ~EditWidgetIcons();
 
     IconStruct state();
+#ifdef WITH_XC_NETWORKING
+    QString m_url;
+    QSharedPointer<IconDownloader> m_downloader;
+#endif
     void reset();
     void load(const QUuid& currentUuid,
               const QSharedPointer<Database>& database,
@@ -106,10 +110,6 @@ private:
     ApplyIconToOptions m_applyIconTo;
     DefaultIconModel* const m_defaultIconModel;
     CustomIconModel* const m_customIconModel;
-#ifdef WITH_XC_NETWORKING
-    QSharedPointer<IconDownloader> m_downloader;
-    QString m_url;
-#endif
 
     Q_DISABLE_COPY(EditWidgetIcons)
 };

@@ -20,26 +20,28 @@
 
 #include "core/Config.h"
 #include "core/Group.h"
-#include "core/Metadata.h"
 #include "core/Tools.h"
 #include "gui/IconModels.h"
 #include "gui/MessageBox.h"
+
 #ifdef WITH_XC_NETWORKING
 #include "gui/IconDownloader.h"
 #endif
 
-FaviconDownloadDialog::FaviconDownloadDialog(QWidget* parent, QSharedPointer<IconDownloader> downloader)
+FaviconDownloadDialog::FaviconDownloadDialog(EditWidgetIcons* parent)
     : QDialog(parent)
     , m_ui(new Ui::FaviconDownloadDialog)
 {
     m_ui->setupUi(this);
-    m_downloader = downloader;
+    m_downloader = parent->m_downloader;
 
     setFixedSize(this->size());
     setAttribute(Qt::WA_DeleteOnClose);
+    m_ui->inputtedURL->setText(parent->m_url);
 
     connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(close()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(downloadFavicon()));
+    connect(m_downloader.data(), SIGNAL(finished(const QString&, const QImage&)), SLOT(close()));
 }
 
 void FaviconDownloadDialog::downloadFavicon()
@@ -52,7 +54,6 @@ void FaviconDownloadDialog::downloadFavicon()
     }
 #endif
 }
-
 
 FaviconDownloadDialog::~FaviconDownloadDialog()
 {

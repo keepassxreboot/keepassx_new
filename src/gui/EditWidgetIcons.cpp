@@ -29,8 +29,8 @@
 #include "gui/IconModels.h"
 #include "gui/MessageBox.h"
 #ifdef WITH_XC_NETWORKING
-#include "gui/IconDownloader.h"
 #include "gui/FaviconDownloadDialog.h"
+#include "gui/IconDownloader.h"
 #endif
 
 IconStruct::IconStruct()
@@ -42,14 +42,15 @@ IconStruct::IconStruct()
 
 EditWidgetIcons::EditWidgetIcons(QWidget* parent)
     : QWidget(parent)
+#ifdef WITH_XC_NETWORKING
+    , m_downloader(new IconDownloader())
+#endif
     , m_ui(new Ui::EditWidgetIcons())
     , m_db(nullptr)
     , m_applyIconTo(ApplyIconToOptions::THIS_ONLY)
     , m_defaultIconModel(new DefaultIconModel(this))
     , m_customIconModel(new CustomIconModel(this))
-#ifdef WITH_XC_NETWORKING
-    , m_downloader(new IconDownloader())
-#endif
+
 {
     m_ui->setupUi(this);
 
@@ -129,7 +130,7 @@ void EditWidgetIcons::load(const QUuid& currentUuid,
 
     m_db = database;
     m_currentUuid = currentUuid;
-    m_url = url;
+    setUrl(url);
 
     m_customIconModel->setIcons(database->metadata()->customIconsPixmaps(IconSize::Default),
                                 database->metadata()->customIconsOrder());
@@ -194,9 +195,10 @@ void EditWidgetIcons::downloadFavicon()
 #endif
 }
 
-void EditWidgetIcons:: showFaviconDialog() {
+void EditWidgetIcons::showFaviconDialog()
+{
 #ifdef WITH_XC_NETWORKING
-    auto faviconDownloadDialog = new FaviconDownloadDialog(this, m_downloader);
+    auto faviconDownloadDialog = new FaviconDownloadDialog(this);
     faviconDownloadDialog->open();
 #endif
 }

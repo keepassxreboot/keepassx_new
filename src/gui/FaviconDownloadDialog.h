@@ -18,9 +18,10 @@
 #ifndef KEEPASSX_FAVICON_DOWNLOAD_DIALOG_H
 #define KEEPASSX_FAVICON_DOWNLOAD_DIALOG_H
 
+#include "EditWidgetIcons.h"
+#include "IconDownloader.h"
 #include <QDialog>
 #include <QScopedPointer>
-#include "IconDownloader.h"
 
 namespace Ui
 {
@@ -32,7 +33,7 @@ class FaviconDownloadDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FaviconDownloadDialog(QWidget* parent, QSharedPointer<IconDownloader> downloader);
+    explicit FaviconDownloadDialog(EditWidgetIcons* parent);
     ~FaviconDownloadDialog();
 
 private:
@@ -41,8 +42,8 @@ private:
 
 private slots:
     void downloadFavicon();
-protected:
 
+protected:
 };
 
 #endif // KEEPASSX_FAVICON_DOWNLOAD_DIALOG_H
