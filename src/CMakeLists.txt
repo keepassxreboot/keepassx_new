@@ -135,6 +135,7 @@ set(keepassx_SOURCES
         gui/DatabaseOpenDialog.cpp
         gui/URLEdit.cpp
         gui/WelcomeWidget.cpp
+        gui/FaviconDownloadDialog.cpp
         gui/csvImport/CsvImportWidget.cpp
         gui/csvImport/CsvImportWizard.cpp
         gui/csvImport/CsvParserModel.cpp
