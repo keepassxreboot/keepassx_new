@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item>
-      <widget class="URLEdit" name="urlEdit">
+      <widget class="QLineEdit" name="inputtedURL">
        <property name="accessibleName">
         <string>Url field</string>
        </property>
@@ -59,14 +59,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>URLEdit</class>
-   <extends>QLineEdit</extends>
-   <header>gui/URLEdit.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

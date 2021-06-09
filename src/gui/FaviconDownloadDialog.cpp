@@ -18,25 +18,41 @@
 #include "FaviconDownloadDialog.h"
 #include "ui_FaviconDownloadDialog.h"
 
-#include "core/Database.h"
-#include "core/Entry.h"
-#include "core/Resources.h"
-#include "gui/DatabaseWidget.h"
+#include "core/Config.h"
+#include "core/Group.h"
+#include "core/Metadata.h"
+#include "core/Tools.h"
+#include "gui/IconModels.h"
+#include "gui/MessageBox.h"
+#ifdef WITH_XC_NETWORKING
+#include "gui/IconDownloader.h"
+#endif
 
-FaviconDownloadDialog::FaviconDownloadDialog(DatabaseWidget* parent, Database* db, Entry* entry)
+FaviconDownloadDialog::FaviconDownloadDialog(QWidget* parent, QSharedPointer<IconDownloader> downloader)
+    : QDialog(parent)
+    , m_ui(new Ui::FaviconDownloadDialog)
 {
-    m_db = db;
-    m_entry = entry;
-    m_parent = parent;
-
     m_ui->setupUi(this);
-    this->setFixedSize(this->sizeHint());
+    m_downloader = downloader;
 
+    setFixedSize(this->size());
     setAttribute(Qt::WA_DeleteOnClose);
 
     connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(close()));
-    connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(close()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(downloadFavicon()));
 }
+
+void FaviconDownloadDialog::downloadFavicon()
+{
+#ifdef WITH_XC_NETWORKING
+    QString url = m_ui->inputtedURL->text();
+    if (!url.isEmpty()) {
+        m_downloader->setUrl(url);
+        m_downloader->download();
+    }
+#endif
+}
+
 
 FaviconDownloadDialog::~FaviconDownloadDialog()
 {
