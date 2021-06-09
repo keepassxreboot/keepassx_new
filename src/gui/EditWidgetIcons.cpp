@@ -79,8 +79,12 @@ EditWidgetIcons::EditWidgetIcons(QWidget* parent)
             SLOT(iconReceived(const QString&, const QImage&)));
 #endif
     // clang-format on
-
+    m_ui->faviconButton->setVisible(false);
     m_ui->addButton->setEnabled(true);
+
+#ifdef WITH_XC_NETWORKING
+    m_ui->faviconButton->setVisible(true);
+#endif
 }
 
 EditWidgetIcons::~EditWidgetIcons()

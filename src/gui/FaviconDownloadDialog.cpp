@@ -33,11 +33,12 @@ FaviconDownloadDialog::FaviconDownloadDialog(EditWidgetIcons* parent)
     , m_ui(new Ui::FaviconDownloadDialog)
 {
     m_ui->setupUi(this);
+#ifdef WITH_XC_NETWORKING
     m_downloader = parent->m_downloader;
-
+    m_ui->inputtedURL->setText(parent->m_url);
+#endif
     setFixedSize(this->size());
     setAttribute(Qt::WA_DeleteOnClose);
-    m_ui->inputtedURL->setText(parent->m_url);
 
     connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(close()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(downloadFavicon()));
