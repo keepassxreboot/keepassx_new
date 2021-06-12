@@ -64,7 +64,7 @@ find_path(BOTAN2_INCLUDE_DIR
 
 # find the library
 find_library(BOTAN2_LIBRARY
-  NAMES botan-2 libbotan-2
+  NAMES botan-2 libbotan-2 botan
   HINTS
     ${PC_BOTAN2_LIBDIR}
     ${PC_BOTAN2_LIBRARY_DIRS}

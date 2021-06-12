@@ -494,7 +494,7 @@ if(WIN32)
 
         find_file(CRYPTO_DLL
             NAMES libcrypto-1_1.dll libcrypto-1_1-x64.dll
-            HINTS ""${OPENSSL_ROOT_DIR}/bin""
+            HINTS "${OPENSSL_ROOT_DIR}/bin"
         )
         if (NOT CRYPTO_DLL)
             message(FATAL_ERROR "Cannot find libcrypto dll, ensure openssl is properly installed.")
