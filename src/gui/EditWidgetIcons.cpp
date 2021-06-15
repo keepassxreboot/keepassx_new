@@ -29,6 +29,7 @@
 #include "gui/IconModels.h"
 #include "gui/MessageBox.h"
 #ifdef WITH_XC_NETWORKING
+#include "gui/FaviconDownloadDialog.h"
 #include "gui/IconDownloader.h"
 #endif
 
@@ -41,14 +42,15 @@ IconStruct::IconStruct()
 
 EditWidgetIcons::EditWidgetIcons(QWidget* parent)
     : QWidget(parent)
+#ifdef WITH_XC_NETWORKING
+    , m_downloader(new IconDownloader())
+#endif
     , m_ui(new Ui::EditWidgetIcons())
     , m_db(nullptr)
     , m_applyIconTo(ApplyIconToOptions::THIS_ONLY)
     , m_defaultIconModel(new DefaultIconModel(this))
     , m_customIconModel(new CustomIconModel(this))
-#ifdef WITH_XC_NETWORKING
-    , m_downloader(new IconDownloader())
-#endif
+
 {
     m_ui->setupUi(this);
 
@@ -63,7 +65,7 @@ EditWidgetIcons::EditWidgetIcons(QWidget* parent)
     connect(m_ui->defaultIconsRadio, SIGNAL(toggled(bool)), this, SLOT(updateWidgetsDefaultIcons(bool)));
     connect(m_ui->customIconsRadio, SIGNAL(toggled(bool)), this, SLOT(updateWidgetsCustomIcons(bool)));
     connect(m_ui->addButton, SIGNAL(clicked()), SLOT(addCustomIconFromFile()));
-    connect(m_ui->faviconButton, SIGNAL(clicked()), SLOT(downloadFavicon()));
+    connect(m_ui->faviconButton, SIGNAL(clicked()), SLOT(showFaviconDialog()));
     connect(m_ui->applyIconToPushButton->menu(), SIGNAL(triggered(QAction*)), SLOT(confirmApplyIconTo(QAction*)));
 
     connect(m_ui->defaultIconsRadio, SIGNAL(toggled(bool)), this, SIGNAL(widgetUpdated()));
@@ -77,9 +79,12 @@ EditWidgetIcons::EditWidgetIcons(QWidget* parent)
             SLOT(iconReceived(const QString&, const QImage&)));
 #endif
     // clang-format on
-
     m_ui->faviconButton->setVisible(false);
     m_ui->addButton->setEnabled(true);
+
+#ifdef WITH_XC_NETWORKING
+    m_ui->faviconButton->setVisible(true);
+#endif
 }
 
 EditWidgetIcons::~EditWidgetIcons()
@@ -179,10 +184,8 @@ void EditWidgetIcons::setUrl(const QString& url)
 {
 #ifdef WITH_XC_NETWORKING
     m_url = url;
-    m_ui->faviconButton->setVisible(!url.isEmpty());
 #else
     Q_UNUSED(url);
-    m_ui->faviconButton->setVisible(false);
 #endif
 }
 
@@ -193,6 +196,14 @@ void EditWidgetIcons::downloadFavicon()
         m_downloader->setUrl(m_url);
         m_downloader->download();
     }
+#endif
+}
+
+void EditWidgetIcons::showFaviconDialog()
+{
+#ifdef WITH_XC_NETWORKING
+    auto faviconDownloadDialog = new FaviconDownloadDialog(this);
+    faviconDownloadDialog->open();
 #endif
 }
 
