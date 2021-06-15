@@ -21,3 +21,6 @@ desktop.ini
 /*.snap
 /*_source.tar.bz2
 
+/entrypoints/
+docker-compose.yml
+Dockerfile

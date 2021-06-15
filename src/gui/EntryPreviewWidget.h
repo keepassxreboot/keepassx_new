@@ -20,6 +20,8 @@
 
 #include "config-keepassx.h"
 #include "gui/DatabaseWidget.h"
+#include "gui/TotpLineEdit.h"
+#include "totp/totp.h"
 
 #include <QWidget>
 
@@ -29,7 +31,6 @@ namespace Ui
 }
 
 class QTextEdit;
-
 class EntryPreviewWidget : public QWidget
 {
     Q_OBJECT
@@ -57,6 +58,7 @@ private slots:
     void setEntryNotesVisible(bool state);
     void setGroupNotesVisible(bool state);
     void setNotesVisible(QTextEdit* notesWidget, const QString& notes, bool state);
+    void setEntryOtpVisible(bool state);
 
     void updateGroupHeaderLine();
     void updateGroupGeneralTab();
@@ -64,13 +66,15 @@ private slots:
     void updateGroupSharingTab();
 #endif
 
-    void updateTotpLabel();
     void updateTabIndexes();
     void openEntryUrl();
+    void updateTotpWidgets();
 
 private:
     void removeTab(QTabWidget* tabWidget, QWidget* widget);
     void setTabEnabled(QTabWidget* tabWidget, QWidget* widget, bool enabled);
+    void setTotpCode();
+    void setTotpRemainingSecondsLabel();
 
     static QString hierarchy(const Group* group, const QString& title);
 
@@ -78,9 +82,14 @@ private:
     bool m_locked;
     QPointer<Entry> m_currentEntry;
     QPointer<Group> m_currentGroup;
+    QPointer<TotpLineEdit> m_totpLineEdit;
+
     QTimer m_totpTimer;
     quint8 m_selectedTabEntry;
     quint8 m_selectedTabGroup;
+
+    uint m_totpStep;
+    bool m_hasTotp;
 };
 
 #endif // KEEPASSX_DETAILSWIDGET_H
