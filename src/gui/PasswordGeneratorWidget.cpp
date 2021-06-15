@@ -352,7 +352,7 @@ void PasswordGeneratorWidget::setAdvancedMode(bool advanced)
 
 void PasswordGeneratorWidget::excludeHexChars()
 {
-    m_ui->editExcludedChars->setText("GHIJKLMNOPQRSTUVWXYZghijklmnopqrstuvwxyz");
+    m_ui->editExcludedChars->setText("GHIJKLMNOPQRSTUVWXYZ");
     m_ui->checkBoxNumbers->setChecked(true);
     m_ui->checkBoxUpper->setChecked(true);
 
