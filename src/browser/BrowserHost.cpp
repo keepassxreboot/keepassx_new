@@ -29,8 +29,8 @@
 
 #ifdef Q_OS_WIN
 #include <fcntl.h>
-#include <winsock2.h>
-
+#undef NOMINMAX
+#define NOMINMAX
 #include <windows.h>
 #else
 #include <sys/socket.h>

@@ -25,7 +25,12 @@
 #include <QScopedPointer>
 #include <QSharedPointer>
 
-#include <windef.h>
+#undef NOMINMAX
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#define NOGDI
+#include <windows.h>
+#undef MessageBox
 
 class WinUtils : public OSUtilsBase, QAbstractNativeEventFilter
 {

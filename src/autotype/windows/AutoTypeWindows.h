@@ -20,6 +20,10 @@
 #define KEEPASSX_AUTOTYPEWINDOWS_H
 
 #include <QtPlugin>
+
+#undef NOMINMAX
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "autotype/AutoTypeAction.h"

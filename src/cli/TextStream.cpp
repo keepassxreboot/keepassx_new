@@ -73,7 +73,7 @@ void TextStream::detectCodec()
     auto env = QProcessEnvironment::systemEnvironment();
 
 #ifdef Q_OS_WIN
-    WINBOOL success = false;
+    bool success = false;
 #ifdef CP_UTF8
     success = SetConsoleOutputCP(CP_UTF8);
 #endif
