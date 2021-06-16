@@ -168,6 +168,9 @@ int main(int argc, char** argv)
 #endif
 
     const bool pwstdin = parser.isSet(pwstdinOption);
+    if (!fileNames.isEmpty() && pwstdin) {
+        Utils::setDefaultTextStreams();
+    }
     for (const QString& filename : fileNames) {
         QString password;
         if (pwstdin) {
@@ -175,7 +178,6 @@ int main(int argc, char** argv)
             // buffer for native messaging, even if the specified file does not exist
             QTextStream out(stdout, QIODevice::WriteOnly);
             out << QObject::tr("Database password: ") << flush;
-            Utils::setDefaultTextStreams();
             password = Utils::getPassword();
         }
 
