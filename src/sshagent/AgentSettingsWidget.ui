@@ -72,10 +72,17 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+	  <item>
+       <widget class="QCheckBox" name="usePageantCheckBox">
+        <property name="text">
+         <string>Use Pageant</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="useOpenSSHCheckBox">
         <property name="text">
-         <string>Use OpenSSH for Windows instead of Pageant</string>
+         <string>Use OpenSSH</string>
         </property>
        </widget>
       </item>

@@ -71,9 +71,19 @@ bool SSHAgent::useOpenSSH() const
     return config()->get(Config::SSHAgent_UseOpenSSH).toBool();
 }
 
+bool SSHAgent::usePageant() const
+{
+    return config()->get(Config::SSHAgent_UsePageant).toBool();
+}
+
 void SSHAgent::setUseOpenSSH(bool useOpenSSH)
 {
     config()->set(Config::SSHAgent_UseOpenSSH, useOpenSSH);
+}
+
+void SSHAgent::setUsePageant(bool usePageant)
+{
+    config()->set(Config::SSHAgent_UsePageant, usePageant);
 }
 #endif
 
@@ -109,10 +119,14 @@ bool SSHAgent::isAgentRunning() const
     QFileInfo socketFileInfo(socketPath());
     return !socketFileInfo.path().isEmpty() && socketFileInfo.exists();
 #else
-    if (!useOpenSSH()) {
+    if (usePageant() && useOpenSSH()) {
+        return (FindWindowA("Pageant", "Pageant") != nullptr) && WaitNamedPipe(socketPath().toLatin1().data(), 100);
+    } else if (useOpenSSH()) {
+        return WaitNamedPipe(socketPath().toLatin1().data(), 100);
+    } else if (usePageant()) {
         return (FindWindowA("Pageant", "Pageant") != nullptr);
     } else {
-        return WaitNamedPipe(socketPath().toLatin1().data(), 100);
+        return false;
     }
 #endif
 }
@@ -120,11 +134,20 @@ bool SSHAgent::isAgentRunning() const
 bool SSHAgent::sendMessage(const QByteArray& in, QByteArray& out)
 {
 #ifdef Q_OS_WIN
-    if (!useOpenSSH()) {
-        return sendMessagePageant(in, out);
+    if (usePageant() && !sendMessagePageant(in, out)) {
+        return false;
     }
+    if (useOpenSSH() && !sendMessageOpenSSH(in, out)) {
+        return false;
+    }
+    return true;
+#else
+    return sendMessageOpenSSH(in, out);
 #endif
+}
 
+bool SSHAgent::sendMessageOpenSSH(const QByteArray& in, QByteArray& out)
+{
     QLocalSocket socket;
     BinaryStream stream(&socket);
 
@@ -143,7 +166,6 @@ bool SSHAgent::sendMessage(const QByteArray& in, QByteArray& out)
     }
 
     socket.close();
-
     return true;
 }
 
