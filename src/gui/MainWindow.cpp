@@ -368,7 +368,8 @@ MainWindow::MainWindow()
     m_ui->actionReports->setIcon(icons()->icon("reports"));
     m_ui->actionDatabaseSettings->setIcon(icons()->icon("document-edit"));
     m_ui->actionDatabaseSecurity->setIcon(icons()->icon("database-change-key"));
-    m_ui->actionLockDatabases->setIcon(icons()->icon("database-lock"));
+    m_ui->actionLockDatabases->setIcon(icons()->icon("database-lock-all"));
+    m_ui->actionLockDatabase->setIcon(icons()->icon("database-lock"));
     m_ui->actionQuit->setIcon(icons()->icon("application-exit"));
     m_ui->actionDatabaseMerge->setIcon(icons()->icon("database-merge"));
     m_ui->menuImport->setIcon(icons()->icon("document-import"));
@@ -459,6 +460,7 @@ MainWindow::MainWindow()
     connect(m_ui->actionLockDatabases, SIGNAL(triggered()), m_ui->tabWidget, SLOT(lockDatabases()));
     connect(m_ui->actionQuit, SIGNAL(triggered()), SLOT(appExit()));
 
+    m_actionMultiplexer.connect(m_ui->actionLockDatabase, SIGNAL(triggered()), SLOT(lock()));
     m_actionMultiplexer.connect(m_ui->actionEntryNew, SIGNAL(triggered()), SLOT(createEntry()));
     m_actionMultiplexer.connect(m_ui->actionEntryClone, SIGNAL(triggered()), SLOT(cloneEntry()));
     m_actionMultiplexer.connect(m_ui->actionEntryEdit, SIGNAL(triggered()), SLOT(switchToEntryEdit()));
@@ -851,6 +853,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
             m_ui->actionDatabaseSave->setEnabled(m_ui->tabWidget->canSave());
             m_ui->actionDatabaseSaveAs->setEnabled(true);
             m_ui->actionDatabaseSaveBackup->setEnabled(true);
+            m_ui->actionLockDatabase->setEnabled(true);
             m_ui->menuExport->setEnabled(true);
             m_ui->actionExportCsv->setEnabled(true);
             m_ui->actionExportHtml->setEnabled(true);
@@ -907,6 +910,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
             m_ui->actionDatabaseSave->setEnabled(false);
             m_ui->actionDatabaseSaveAs->setEnabled(false);
             m_ui->actionDatabaseSaveBackup->setEnabled(false);
+            m_ui->actionLockDatabase->setEnabled(false);
             m_ui->menuExport->setEnabled(false);
             m_ui->actionExportCsv->setEnabled(false);
             m_ui->actionExportHtml->setEnabled(false);
