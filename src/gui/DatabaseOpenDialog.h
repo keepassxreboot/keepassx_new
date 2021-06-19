@@ -21,8 +21,10 @@
 #include "core/Global.h"
 
 #include <QDialog>
+#include <QList>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QTabBar>
 
 class Database;
 class DatabaseWidget;
@@ -42,11 +44,12 @@ public:
     };
 
     explicit DatabaseOpenDialog(QWidget* parent = nullptr);
-    void setFilePath(const QString& filePath);
-    void setTargetDatabaseWidget(DatabaseWidget* dbWidget);
+    void setTarget(DatabaseWidget* dbWidget, const QString& filePath);
+    void addDatabaseTab(DatabaseWidget* dbWidget);
+    void setActiveDatabaseTab(DatabaseWidget* dbWidget);
     void setIntent(Intent intent);
     Intent intent() const;
-    QSharedPointer<Database> database();
+    QSharedPointer<Database> database() const;
     void clearForms();
 
 signals:
@@ -54,11 +57,16 @@ signals:
 
 public slots:
     void complete(bool accepted);
+    void tabChanged(int index);
 
 private:
+    void selectTabOffset(int offset);
+
     QPointer<DatabaseOpenWidget> m_view;
+    QPointer<QTabBar> m_tabBar;
     QSharedPointer<Database> m_db;
-    QPointer<DatabaseWidget> m_dbWidget;
+    QList<QPointer<DatabaseWidget>> m_tabDbWidgets;
+    QPointer<DatabaseWidget> m_currentDbWidget;
     Intent m_intent = Intent::None;
 };
 
