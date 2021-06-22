@@ -121,6 +121,7 @@ public:
     PasswordGenerator::GeneratorFlags passwordGeneratorFlags();
     QJsonObject generatePassword();
     void updateBinaryPaths();
+    QString replaceHomePath(QString location);
 
 private:
     static BrowserSettings* m_instance;
