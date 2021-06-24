@@ -165,6 +165,8 @@ void DatabaseWidgetStateSync::updateViewState()
     } else {
         m_listViewState = m_activeDbWidget->entryViewState();
     }
+
+    sync();
 }
 
 QList<int> DatabaseWidgetStateSync::variantToIntList(const QVariant& variant)
