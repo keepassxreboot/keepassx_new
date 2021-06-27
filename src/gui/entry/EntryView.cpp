@@ -77,6 +77,12 @@ EntryView::EntryView(QWidget* parent)
     setRootIsDecorated(false);
     setAlternatingRowColors(true);
     setDragEnabled(true);
+
+    viewport()->setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDefaultDropAction(Qt::MoveAction);
+    setDragDropMode(QAbstractItemView::InternalMove);
+
     setSortingEnabled(true);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -161,6 +167,15 @@ void EntryView::sortIndicatorChanged(int logicalIndex, Qt::SortOrder order)
 
     header()->setSortIndicatorShown(true);
     resetFixedColumns();
+}
+
+void EntryView::dragMoveEvent(QDragMoveEvent* event)
+{
+    if (event->isAccepted() && isSorted()) {
+        event->ignore();
+    } else {
+        event->acceptProposedAction();
+    }
 }
 
 void EntryView::keyPressEvent(QKeyEvent* event)

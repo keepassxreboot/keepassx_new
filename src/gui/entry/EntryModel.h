@@ -67,12 +67,16 @@ public:
     void setGroup(Group* group);
     void setEntries(const QList<Entry*>& entries);
 
+    bool
+    dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
+
 private slots:
     void entryAboutToAdd(Entry* entry);
     void entryAdded(Entry* entry);
     void entryAboutToRemove(Entry* entry);
     void entryRemoved();
     void entryAboutToMoveUp(int row);
+    void entryAboutToMoveToRowNum(int fromRow, int toRow);
     void entryMovedUp();
     void entryAboutToMoveDown(int row);
     void entryMovedDown();
