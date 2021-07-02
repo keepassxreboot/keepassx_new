@@ -254,6 +254,9 @@
     <addaction name="actionDatabaseSaveBackup"/>
     <addaction name="actionDatabaseClose"/>
     <addaction name="separator"/>
+    <addaction name="actionMenuLockDatabase"/>
+    <addaction name="actionLockDatabases"/>
+    <addaction name="separator"/>
     <addaction name="actionReports"/>
     <addaction name="actionDatabaseSettings"/>
     <addaction name="actionDatabaseSecurity"/>
@@ -349,7 +352,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionLockDatabases"/>
     <addaction name="actionPasswordGenerator"/>
     <addaction name="actionSettings"/>
    </widget>
@@ -413,8 +415,6 @@
    <addaction name="actionEntryCopyPassword"/>
    <addaction name="actionEntryCopyURL"/>
    <addaction name="actionEntryAutoType"/>
-   <addaction name="separator"/>
-   <addaction name="actionLockDatabases"/>
    <addaction name="separator"/>
    <addaction name="actionPasswordGenerator"/>
    <addaction name="actionSettings"/>
@@ -759,7 +759,15 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Lock selected database</string>
+    <string>&amp;Lock Selected Database</string>
+   </property>
+  </action>
+  <action name="actionMenuLockDatabase">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Lock Selected Database</string>
    </property>
   </action>
   <action name="actionLockDatabases">
@@ -767,7 +775,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Lock Databases</string>
+    <string>&amp;Lock All Databases</string>
    </property>
   </action>
   <action name="actionEntryCopyTitle">

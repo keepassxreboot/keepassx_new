@@ -169,6 +169,14 @@ MainWindow::MainWindow()
         autoTypeButton->setPopupMode(QToolButton::MenuButtonPopup);
     }
 
+    auto databaseLockMenu = new QMenu({}, this);
+    databaseLockMenu->addAction(m_ui->actionLockDatabases);
+    m_ui->actionLockDatabase->setMenu(databaseLockMenu);
+    auto databaseLockButton = qobject_cast<QToolButton*>(m_ui->toolBar->widgetForAction(m_ui->actionLockDatabase));
+    if (databaseLockButton) {
+        databaseLockButton->setPopupMode(QToolButton::MenuButtonPopup);
+    }
+
     restoreGeometry(config()->get(Config::GUI_MainWindowGeometry).toByteArray());
     restoreState(config()->get(Config::GUI_MainWindowState).toByteArray());
 
@@ -262,7 +270,8 @@ MainWindow::MainWindow()
     setShortcut(m_ui->actionDatabaseSave, QKeySequence::Save, Qt::CTRL + Qt::Key_S);
     setShortcut(m_ui->actionDatabaseSaveAs, QKeySequence::SaveAs, Qt::CTRL + Qt::SHIFT + Qt::Key_S);
     setShortcut(m_ui->actionDatabaseClose, QKeySequence::Close, Qt::CTRL + Qt::Key_W);
-    m_ui->actionLockDatabases->setShortcut(Qt::CTRL + Qt::Key_L);
+    m_ui->actionMenuLockDatabase->setShortcut(Qt::CTRL + Qt::Key_L);
+    m_ui->actionLockDatabases->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_L);
     setShortcut(m_ui->actionQuit, QKeySequence::Quit, Qt::CTRL + Qt::Key_Q);
     setShortcut(m_ui->actionEntryNew, QKeySequence::New, Qt::CTRL + Qt::Key_N);
     m_ui->actionEntryEdit->setShortcut(Qt::CTRL + Qt::Key_E);
@@ -368,8 +377,9 @@ MainWindow::MainWindow()
     m_ui->actionReports->setIcon(icons()->icon("reports"));
     m_ui->actionDatabaseSettings->setIcon(icons()->icon("document-edit"));
     m_ui->actionDatabaseSecurity->setIcon(icons()->icon("database-change-key"));
-    m_ui->actionLockDatabases->setIcon(icons()->icon("database-lock-all"));
     m_ui->actionLockDatabase->setIcon(icons()->icon("database-lock"));
+    m_ui->actionMenuLockDatabase->setIcon(icons()->icon("database-lock"));
+    m_ui->actionLockDatabases->setIcon(icons()->icon("database-lock-all"));
     m_ui->actionQuit->setIcon(icons()->icon("application-exit"));
     m_ui->actionDatabaseMerge->setIcon(icons()->icon("database-merge"));
     m_ui->menuImport->setIcon(icons()->icon("document-import"));
@@ -457,10 +467,15 @@ MainWindow::MainWindow()
     connect(m_ui->actionImportOpVault, SIGNAL(triggered()), m_ui->tabWidget, SLOT(importOpVaultDatabase()));
     connect(m_ui->actionExportCsv, SIGNAL(triggered()), m_ui->tabWidget, SLOT(exportToCsv()));
     connect(m_ui->actionExportHtml, SIGNAL(triggered()), m_ui->tabWidget, SLOT(exportToHtml()));
+    connect(
+        m_ui->actionLockDatabase, SIGNAL(triggered()), m_ui->tabWidget, SLOT(lockAndSwitchToFirstUnlockedDatabase()));
+    connect(m_ui->actionMenuLockDatabase,
+            SIGNAL(triggered()),
+            m_ui->tabWidget,
+            SLOT(lockAndSwitchToFirstUnlockedDatabase()));
     connect(m_ui->actionLockDatabases, SIGNAL(triggered()), m_ui->tabWidget, SLOT(lockDatabases()));
     connect(m_ui->actionQuit, SIGNAL(triggered()), SLOT(appExit()));
 
-    m_actionMultiplexer.connect(m_ui->actionLockDatabase, SIGNAL(triggered()), SLOT(lock()));
     m_actionMultiplexer.connect(m_ui->actionEntryNew, SIGNAL(triggered()), SLOT(createEntry()));
     m_actionMultiplexer.connect(m_ui->actionEntryClone, SIGNAL(triggered()), SLOT(cloneEntry()));
     m_actionMultiplexer.connect(m_ui->actionEntryEdit, SIGNAL(triggered()), SLOT(switchToEntryEdit()));
@@ -854,6 +869,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
             m_ui->actionDatabaseSaveAs->setEnabled(true);
             m_ui->actionDatabaseSaveBackup->setEnabled(true);
             m_ui->actionLockDatabase->setEnabled(true);
+            m_ui->actionMenuLockDatabase->setEnabled(true);
             m_ui->menuExport->setEnabled(true);
             m_ui->actionExportCsv->setEnabled(true);
             m_ui->actionExportHtml->setEnabled(true);
@@ -911,6 +927,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
             m_ui->actionDatabaseSaveAs->setEnabled(false);
             m_ui->actionDatabaseSaveBackup->setEnabled(false);
             m_ui->actionLockDatabase->setEnabled(false);
+            m_ui->actionMenuLockDatabase->setEnabled(false);
             m_ui->menuExport->setEnabled(false);
             m_ui->actionExportCsv->setEnabled(false);
             m_ui->actionExportHtml->setEnabled(false);
