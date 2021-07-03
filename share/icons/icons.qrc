@@ -15,6 +15,7 @@
         <file>application/scalable/actions/configure.svg</file>
         <file>application/scalable/actions/database-change-key.svg</file>
         <file>application/scalable/actions/database-lock.svg</file>
+        <file>application/scalable/actions/database-lock-all.svg</file>
         <file>application/scalable/actions/database-merge.svg</file>
         <file>application/scalable/actions/dialog-close.svg</file>
         <file>application/scalable/actions/dialog-ok.svg</file>

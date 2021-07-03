@@ -20,4 +20,6 @@ desktop.ini
 /prime/
 /*.snap
 /*_source.tar.bz2
-
+Dockerfile
+entrypoints/*
+docker-compose.yml

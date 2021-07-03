@@ -48,6 +48,7 @@ public:
     bool hasLockableDatabases() const;
 
 public slots:
+    void lockAndSwitchToFirstUnlockedDatabase(int index = -1);
     void addDatabaseTab(const QString& filePath,
                         bool inBackground = false,
                         const QString& password = {},
