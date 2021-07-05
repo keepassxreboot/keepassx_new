@@ -1880,9 +1880,19 @@ bool DatabaseWidget::saveBackup()
             oldFilePath = QDir::toNativeSeparators(config()->get(Config::LastDir).toString() + "/"
                                                    + tr("Passwords").append(".kdbx"));
         }
+
+        QString lastDatabaseBackupDir = config()->get(Config::LastDatabaseBackupDir).toString();
+        const bool dirExists = !lastDatabaseBackupDir.isEmpty() && QDir(lastDatabaseBackupDir).exists();
+        QString lastDatabaseBackupFullPath = "";
+        if (dirExists) {
+            lastDatabaseBackupFullPath = QDir(lastDatabaseBackupDir).filePath(QFileInfo(m_db->filePath()).fileName());
+        } else {
+            lastDatabaseBackupFullPath = m_db->filePath();
+        }
+
         const QString newFilePath = fileDialog()->getSaveFileName(this,
                                                                   tr("Save database backup"),
-                                                                  oldFilePath,
+                                                                  lastDatabaseBackupFullPath,
                                                                   tr("KeePass 2 Database").append(" (*.kdbx)"),
                                                                   nullptr,
                                                                   nullptr);
@@ -1906,6 +1916,7 @@ bool DatabaseWidget::saveBackup()
                 // Source database is marked as clean when copy is saved, even if source has unsaved changes
                 m_db->markAsModified();
             }
+            config()->set(Config::LastDatabaseBackupDir, QFileInfo(newFilePath).absolutePath());
             return true;
         }
 

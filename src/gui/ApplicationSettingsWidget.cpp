@@ -400,6 +400,7 @@ void ApplicationSettingsWidget::saveSettings()
         config()->remove(Config::LastDatabases);
         config()->remove(Config::LastActiveDatabase);
         config()->remove(Config::LastAttachmentDir);
+        config()->remove(Config::LastDatabaseBackupDir);
     }
 
     if (!config()->get(Config::RememberLastKeyFiles).toBool()) {
@@ -439,6 +440,7 @@ void ApplicationSettingsWidget::resetSettings()
     config()->remove(Config::LastDatabases);
     config()->remove(Config::LastActiveDatabase);
     config()->remove(Config::LastAttachmentDir);
+    config()->remove(Config::LastDatabaseBackupDir);
     config()->remove(Config::LastKeyFiles);
     config()->remove(Config::LastDir);
 

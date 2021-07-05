@@ -70,6 +70,7 @@ public:
         LastOpenedDatabases,
         LastDir,
         LastAttachmentDir,
+        LastDatabaseBackupDir,
 
         GUI_Language,
         GUI_HideToolbar,
