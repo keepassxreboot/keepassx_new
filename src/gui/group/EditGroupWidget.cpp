@@ -18,6 +18,10 @@
 #include "EditGroupWidget.h"
 #include "gui/Font.h"
 #include "ui_EditGroupWidgetMain.h"
+#if defined(WITH_XC_BROWSER)
+#include "browser/BrowserService.h"
+#include "ui_EditGroupWidgetBrowser.h"
+#endif
 
 #include "core/Config.h"
 #include "core/Metadata.h"
@@ -65,6 +69,11 @@ EditGroupWidget::EditGroupWidget(QWidget* parent)
     , m_editGroupWidgetMain(new QScrollArea())
     , m_editGroupWidgetIcons(new EditWidgetIcons())
     , m_editWidgetProperties(new EditWidgetProperties())
+#if defined(WITH_XC_BROWSER)
+    , m_browserSettingsChanged(false)
+    , m_browserUi(new Ui::EditGroupWidgetBrowser())
+    , m_browserWidget(new QWidget())
+#endif
     , m_group(nullptr)
 {
     m_mainUi->setupUi(m_editGroupWidgetMain);
@@ -75,6 +84,12 @@ EditGroupWidget::EditGroupWidget(QWidget* parent)
     addEditPage(new EditGroupPageKeeShare(this));
 #endif
     addPage(tr("Properties"), icons()->icon("document-properties"), m_editWidgetProperties);
+#if defined(WITH_XC_BROWSER)
+    if (config()->get(Config::Browser_Enabled).toBool()) {
+        addPage(tr("Browser Integration"), icons()->icon("internet-web-browser"), m_browserWidget);
+        m_browserUi->setupUi(m_browserWidget);
+    }
+#endif
 
     connect(m_mainUi->expireCheck, SIGNAL(toggled(bool)), m_mainUi->expireDatePicker, SLOT(setEnabled(bool)));
     connect(m_mainUi->autoTypeSequenceCustomRadio,
@@ -116,6 +131,16 @@ void EditGroupWidget::setupModifiedTracking()
 
     // Icon tab
     connect(m_editGroupWidgetIcons, SIGNAL(widgetUpdated()), SLOT(setModified()));
+
+#if defined(WITH_XC_BROWSER)
+    // Browser integration tab
+    connect(m_browserUi->skipAutoSubmitCheckbox, SIGNAL(toggled(bool)), SLOT(setModified()));
+    connect(m_browserUi->hideEntryCheckbox, SIGNAL(toggled(bool)), SLOT(setModified()));
+    connect(m_browserUi->onlyHttpAuthCheckbox, SIGNAL(toggled(bool)), SLOT(setModified()));
+    connect(m_browserUi->skipAutoSubmitCheckbox, SIGNAL(toggled(bool)), SLOT(updateBrowserModified()));
+    connect(m_browserUi->hideEntryCheckbox, SIGNAL(toggled(bool)), SLOT(updateBrowserModified()));
+    connect(m_browserUi->onlyHttpAuthCheckbox, SIGNAL(toggled(bool)), SLOT(updateBrowserModified()));
+#endif
 }
 
 void EditGroupWidget::loadGroup(Group* group, bool create, const QSharedPointer<Database>& database)
@@ -169,6 +194,46 @@ void EditGroupWidget::loadGroup(Group* group, bool create, const QSharedPointer<
     for (const ExtraPage& page : asConst(m_extraPages)) {
         page.set(m_temporaryGroup.data(), m_db);
     }
+
+#ifdef WITH_XC_BROWSER
+    if (config()->get(Config::Browser_Enabled).toBool()) {
+        QString skip, hide, onlyHttpAuth;
+        bool skipValuesSame = true;
+        bool hideValuesSame = true;
+        bool onlyHttpAuthValuesSame = true;
+
+        // Handles empty values as false. Stores the first value and compares to it.
+        auto handleValues = [](const Entry* entry, const QString& option, QString& ref, bool& valuesSame) {
+            auto value = entry->customData()->value(option);
+            if (value.isEmpty()) {
+                value = FALSE_STR;
+            }
+
+            if (ref.isEmpty()) {
+                ref = value;
+            } else if (value != ref) {
+                valuesSame = false;
+            }
+        };
+
+        // Read the options states
+        const auto entries = group->entriesRecursive();
+        for (const auto entry : entries) {
+            handleValues(entry, BrowserService::OPTION_SKIP_AUTO_SUBMIT, skip, skipValuesSame);
+            handleValues(entry, BrowserService::OPTION_HIDE_ENTRY, hide, hideValuesSame);
+            handleValues(entry, BrowserService::OPTION_ONLY_HTTP_AUTH, onlyHttpAuth, onlyHttpAuthValuesSame);
+        }
+
+        m_browserUi->skipAutoSubmitCheckbox->setCheckState(
+            skipValuesSame ? (skip == TRUE_STR ? Qt::Checked : Qt::Unchecked) : Qt::PartiallyChecked);
+
+        m_browserUi->hideEntryCheckbox->setCheckState(hideValuesSame ? (hide == TRUE_STR ? Qt::Checked : Qt::Unchecked)
+                                                                     : Qt::PartiallyChecked);
+
+        m_browserUi->onlyHttpAuthCheckbox->setCheckState(
+            onlyHttpAuthValuesSame ? (onlyHttpAuth == TRUE_STR ? Qt::Checked : Qt::Unchecked) : Qt::PartiallyChecked);
+    }
+#endif
 
     setCurrentPage(0);
 
@@ -231,6 +296,25 @@ void EditGroupWidget::apply()
         m_group->applyGroupIconToChildEntries();
     }
 
+#ifdef WITH_XC_BROWSER
+    if (config()->get(Config::Browser_Enabled).toBool()) {
+        if (!m_browserSettingsChanged) {
+            return;
+        }
+
+        const auto skip = m_browserUi->skipAutoSubmitCheckbox->isChecked();
+        const auto hide = m_browserUi->hideEntryCheckbox->isChecked();
+        const auto onlyHttpAuth = m_browserUi->onlyHttpAuthCheckbox->isChecked();
+
+        auto entries = m_group->entriesRecursive();
+        for (auto entry : entries) {
+            entry->customData()->set(BrowserService::OPTION_SKIP_AUTO_SUBMIT, (skip ? TRUE_STR : FALSE_STR));
+            entry->customData()->set(BrowserService::OPTION_HIDE_ENTRY, (hide ? TRUE_STR : FALSE_STR));
+            entry->customData()->set(BrowserService::OPTION_ONLY_HTTP_AUTH, (onlyHttpAuth ? TRUE_STR : FALSE_STR));
+        }
+    }
+#endif
+
     setModified(false);
 }
 
@@ -243,7 +327,7 @@ void EditGroupWidget::cancel()
     if (isModified()) {
         auto result = MessageBox::question(this,
                                            QString(),
-                                           tr("Entry has unsaved changes"),
+                                           tr("Group has unsaved changes"),
                                            MessageBox::Cancel | MessageBox::Save | MessageBox::Discard,
                                            MessageBox::Cancel);
         if (result == MessageBox::Cancel) {
@@ -258,6 +342,13 @@ void EditGroupWidget::cancel()
     clear();
     emit editFinished(false);
 }
+
+#ifdef WITH_XC_BROWSER
+void EditGroupWidget::updateBrowserModified()
+{
+    m_browserSettingsChanged = true;
+}
+#endif
 
 void EditGroupWidget::clear()
 {
