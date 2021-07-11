@@ -195,11 +195,15 @@ bool EntrySearcher::searchEntryImpl(const Entry* entry)
                 found = term.regex.match(entry->group()->name()).hasMatch();
             }
             break;
+        case Field::Tag:
+            found = term.regex.match(entry->resolvePlaceholder(entry->tags())).hasMatch();
+            break;
         default:
             // Terms without a specific field try to match title, username, url, and notes
             found = term.regex.match(entry->resolvePlaceholder(entry->title())).hasMatch()
                     || term.regex.match(entry->resolvePlaceholder(entry->username())).hasMatch()
                     || term.regex.match(entry->resolvePlaceholder(entry->url())).hasMatch()
+                    || term.regex.match(entry->resolvePlaceholder(entry->tags())).hasMatch()
                     || term.regex.match(entry->notes()).hasMatch();
         }
 
@@ -226,10 +230,13 @@ void EntrySearcher::parseSearchTerms(const QString& searchString)
         {QStringLiteral("pw"), Field::Password},
         {QStringLiteral("password"), Field::Password},
         {QStringLiteral("title"), Field::Title},
+        {QStringLiteral("t"), Field::Title},
         {QStringLiteral("u"), Field::Username}, // u: stands for username rather than url
         {QStringLiteral("url"), Field::Url},
         {QStringLiteral("username"), Field::Username},
-        {QStringLiteral("group"), Field::Group}};
+        {QStringLiteral("group"), Field::Group},
+        {QStringLiteral("tag"), Field::Tag},
+    };
 
     m_searchTerms.clear();
     auto results = m_termParser.globalMatch(searchString);

@@ -99,6 +99,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     , m_keepass1OpenWidget(new KeePass1OpenWidget(this))
     , m_opVaultOpenWidget(new OpVaultOpenWidget(this))
     , m_groupView(new GroupView(m_db.data(), m_mainSplitter))
+    , m_tagView(new QListView(m_mainSplitter))
     , m_saveAttempts(0)
     , m_entrySearcher(new EntrySearcher(false))
 {
@@ -113,19 +114,30 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     hbox->addWidget(m_mainSplitter);
     m_mainWidget->setLayout(mainLayout);
 
+    auto* leftHandSideWidget = new QWidget(m_mainSplitter);
+    auto* leftHandSideVBox = new QVBoxLayout();
+    auto tagModel = new TagModel(m_db->rootGroup());
+    m_tagView->setModel(tagModel);
+    m_tagView->setFrameStyle(QFrame::NoFrame);
+    connect(m_tagView, SIGNAL(clicked(QModelIndex)), this, SLOT(filterByTag(QModelIndex)));
+
+    leftHandSideVBox->addWidget(m_groupView);
+    leftHandSideVBox->addWidget(m_tagView);
+    leftHandSideWidget->setLayout(leftHandSideVBox);
+
     auto* rightHandSideWidget = new QWidget(m_mainSplitter);
-    auto* vbox = new QVBoxLayout();
-    vbox->setMargin(0);
-    vbox->addWidget(m_searchingLabel);
+    auto* rightHandSideVBox = new QVBoxLayout();
+    rightHandSideVBox->setMargin(0);
+    rightHandSideVBox->addWidget(m_searchingLabel);
 #ifdef WITH_XC_KEESHARE
-    vbox->addWidget(m_shareLabel);
+    rightHandSideVBox->addWidget(m_shareLabel);
 #endif
-    vbox->addWidget(m_previewSplitter);
-    rightHandSideWidget->setLayout(vbox);
+    rightHandSideVBox->addWidget(m_previewSplitter);
+    rightHandSideWidget->setLayout(rightHandSideVBox);
     m_entryView = new EntryView(rightHandSideWidget);
 
     m_mainSplitter->setChildrenCollapsible(false);
-    m_mainSplitter->addWidget(m_groupView);
+    m_mainSplitter->addWidget(leftHandSideWidget);
     m_mainSplitter->addWidget(rightHandSideWidget);
     m_mainSplitter->setStretchFactor(0, 30);
     m_mainSplitter->setStretchFactor(1, 70);
@@ -192,7 +204,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     connect(m_entryView, SIGNAL(viewStateChanged()), SIGNAL(entryViewStateChanged()));
     connect(m_groupView, SIGNAL(groupSelectionChanged()), SLOT(onGroupChanged()));
     connect(m_groupView, SIGNAL(groupSelectionChanged()), SIGNAL(groupChanged()));
-    connect(m_groupView, &GroupView::groupFocused, this, [this] { m_previewView->setGroup(currentGroup()); });
+    connect(m_groupView, &GroupView::groupSelectionChanged, this, [&](){qobject_cast<TagModel*>(m_tagView->model())->setGroup(currentGroup());});
     connect(m_entryView, SIGNAL(entryActivated(Entry*,EntryModel::ModelColumn)),
         SLOT(entryActivationSignalReceived(Entry*,EntryModel::ModelColumn)));
     connect(m_entryView, SIGNAL(entrySelectionChanged(Entry*)), SLOT(onEntryChanged(Entry*)));
@@ -608,6 +620,21 @@ void DatabaseWidget::copyAttribute(QAction* action)
     if (currentEntry) {
         setClipboardTextAndMinimize(
             currentEntry->resolveMultiplePlaceholders(currentEntry->attributes()->value(action->data().toString())));
+    }
+}
+
+void DatabaseWidget::filterByTag(const QModelIndex& index)
+{
+    TagModel* tagModel = qobject_cast<TagModel*>(m_tagView->model());
+
+    m_lastTagSelection = tagModel->tags().at(index.row());
+
+    if (m_lastTagSelection == "All") {
+        if (isSearchActive()) {
+            endSearch();
+        }
+    } else {
+        search("tag:" + m_lastTagSelection);
     }
 }
 
@@ -1391,6 +1418,8 @@ void DatabaseWidget::onEntryChanged(Entry* entry)
 {
     if (entry) {
         m_previewView->setEntry(entry);
+        static_cast<TagModel*>(m_tagView->model())->findTags();
+        restoreTagSidePanelSelection();
     }
 
     emit entrySelectionChanged();
@@ -2047,4 +2076,13 @@ void DatabaseWidget::openDatabaseFromEntry(const Entry* entry, bool inBackground
 
     // Request to open the database file in the background with a password and keyfile
     emit requestOpenDatabase(dbFileInfo.canonicalFilePath(), inBackground, password, keyFileInfo.canonicalFilePath());
+}
+
+void DatabaseWidget::restoreTagSidePanelSelection()
+{
+    auto model = static_cast<TagModel*>(m_tagView->model());
+    auto stringListIndex = model->tags().indexOf(m_lastTagSelection);
+    // If stringListIndex not found, defaults to first index: All tags
+    auto modelIndex = model->index(stringListIndex, 0);
+    m_tagView->setCurrentIndex(modelIndex);
 }

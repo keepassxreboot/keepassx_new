@@ -360,6 +360,35 @@
                 </property>
                </widget>
               </item>
+              <item row="2" column="5" alignment="Qt::AlignTop">
+               <widget class="QLabel" name="entryTagsTitleLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Tags</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="6" alignment="Qt::AlignTop">
+               <widget class="TagsWidget" name="tagsList">
+                <property name="accessibleName">
+                 <string>Tags list</string>
+                </property>
+               </widget>
+              </item>
               <item row="2" column="0">
                <spacer name="entryLeftHorizontalSpacer_5">
                 <property name="orientation">
@@ -392,7 +421,7 @@
                 </property>
                </spacer>
               </item>
-              <item row="2" column="2" colspan="5">
+              <item row="2" column="2">
                <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
                 <property name="spacing">
                  <number>6</number>
@@ -1156,6 +1185,12 @@
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>gui/widgets/ElidedLabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagsWidget</class>
+   <extends>QWidget</extends>
+   <header>gui/tag/TagsWidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

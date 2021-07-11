@@ -149,6 +149,8 @@ set(keepassx_SOURCES
         gui/group/EditGroupWidget.cpp
         gui/group/GroupModel.cpp
         gui/group/GroupView.cpp
+        gui/tag/TagModel.cpp
+        gui/tag/TagsWidget.cpp
         gui/databasekey/KeyComponentWidget.cpp
         gui/databasekey/PasswordEditWidget.cpp
         gui/databasekey/YubiKeyEditWidget.cpp
