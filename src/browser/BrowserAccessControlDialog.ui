@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>405</width>
-    <height>200</height>
+    <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,10 @@
       <bool>false</bool>
      </property>
      <property name="selectionMode">
-      <enum>QAbstractItemView::NoSelection</enum>
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
      </property>
      <property name="cornerButtonEnabled">
       <bool>false</bool>
@@ -51,6 +54,43 @@
       <bool>false</bool>
      </attribute>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="selectAllButton">
+       <property name="text">
+        <string>Select All</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="selectNoneButton">
+       <property name="text">
+        <string>Select None</string>
+       </property>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -97,7 +137,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="cancelButton">
+      <widget class="QPushButton" name="denyButton">
        <property name="text">
         <string>Deny All</string>
        </property>
