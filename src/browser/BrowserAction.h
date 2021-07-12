@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2021 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,13 @@
 #define BROWSERACTION_H
 
 #include <QJsonObject>
+#include <QObject>
 #include <QString>
 
-class BrowserAction
+class BrowserAction : public QObject
 {
+    Q_OBJECT
+
 public:
     explicit BrowserAction() = default;
     ~BrowserAction() = default;

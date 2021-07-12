@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 KeePassXC Team <team@keepassxc.org>
+ *  Copyright (C) 2021 KeePassXC Team <team@keepassxc.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "BrowserShared.h"
 #include "config-keepassx.h"
 #include "core/Global.h"
+#include "gui/PasswordGeneratorWidget.h"
 
 #include <QJsonDocument>
 #include <QJsonParseError>
@@ -303,25 +304,19 @@ QJsonObject BrowserAction::handleGetLogins(const QJsonObject& json, const QStrin
 
 QJsonObject BrowserAction::handleGeneratePassword(const QJsonObject& json, const QString& action)
 {
+    auto errorMessage = getErrorReply(action, ERROR_KEEPASS_ACTION_CANCELLED_OR_DENIED);
     auto nonce = json.value("nonce").toString();
-    auto password = browserSettings()->generatePassword();
+    auto generator = browserService()->showPasswordGenerator(errorMessage);
 
-    if (nonce.isEmpty() || password.isEmpty()) {
-        return QJsonObject();
-    }
+    connect(generator, &PasswordGeneratorWidget::appliedPassword, [=](QString password) {
+        const QString newNonce = incrementNonce(nonce);
+        QJsonObject message = buildMessage(newNonce);
+        message["password"] = password;
 
-    // For backwards compatibility
-    password["login"] = password["entropy"];
+        browserService()->sendPassword(buildResponse(action, message, newNonce));
+    });
 
-    QJsonArray arr;
-    arr.append(password);
-
-    const QString newNonce = incrementNonce(nonce);
-
-    QJsonObject message = buildMessage(newNonce);
-    message["entries"] = arr;
-
-    return buildResponse(action, message, newNonce);
+    return QJsonObject();
 }
 
 QJsonObject BrowserAction::handleSetLogin(const QJsonObject& json, const QString& action)
