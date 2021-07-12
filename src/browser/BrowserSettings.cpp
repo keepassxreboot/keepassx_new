@@ -20,6 +20,7 @@
 #include "BrowserSettings.h"
 #include "core/Config.h"
 #include "core/PasswordHealth.h"
+#include <QDir>
 
 BrowserSettings* BrowserSettings::m_instance(nullptr);
 
@@ -159,7 +160,8 @@ QString BrowserSettings::customProxyLocation()
 
 void BrowserSettings::setCustomProxyLocation(const QString& location)
 {
-    config()->set(Config::Browser_CustomProxyLocation, location);
+    auto homePath = replaceHomePath(location);
+    config()->set(Config::Browser_CustomProxyLocation, homePath);
 }
 
 bool BrowserSettings::customBrowserSupport()
@@ -189,7 +191,8 @@ QString BrowserSettings::customBrowserLocation()
 
 void BrowserSettings::setCustomBrowserLocation(const QString& location)
 {
-    config()->set(Config::Browser_CustomBrowserLocation, location);
+    auto homePath = replaceHomePath(location);
+    config()->set(Config::Browser_CustomBrowserLocation, homePath);
 }
 
 QString BrowserSettings::proxyLocation()
@@ -513,4 +516,14 @@ QJsonObject BrowserSettings::generatePassword()
 void BrowserSettings::updateBinaryPaths()
 {
     m_nativeMessageInstaller.updateBinaryPaths();
+}
+
+QString BrowserSettings::replaceHomePath(QString location)
+{
+    auto homePath = QDir::homePath();
+    if (location.startsWith(homePath)) {
+        location.replace(homePath, "~");
+    }
+
+    return location;
 }
