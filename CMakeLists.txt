@@ -458,13 +458,6 @@ include_directories(SYSTEM ${ZLIB_INCLUDE_DIR})
 # QREncode required for TOTP
 find_package(QREncode REQUIRED)
 
-# Optional
-if(WITH_XC_YUBIKEY)
-    find_package(YubiKey REQUIRED)
-
-    include_directories(SYSTEM ${YUBIKEY_INCLUDE_DIRS})
-endif()
-
 if(UNIX)
     check_cxx_source_compiles("#include <sys/prctl.h>
     int main() { prctl(PR_SET_DUMPABLE, 0); return 0; }"

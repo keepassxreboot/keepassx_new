@@ -15,6 +15,7 @@
 
 set(EXCLUDED_DIRS
         # third-party directories
+        src/thirdparty/
         src/zxcvbn/
         # objective-c directories
         src/touchid/
@@ -29,9 +30,6 @@ set(EXCLUDED_FILES
         gui/KMessageWidget.cpp
         gui/MainWindowAdaptor.h
         gui/MainWindowAdaptor.cpp
-        crypto/ssh/bcrypt_pbkdf.cpp
-        crypto/ssh/blf.h
-        crypto/ssh/blowfish.c
         tests/modeltest.cpp
         tests/modeltest.h
         # objective-c files

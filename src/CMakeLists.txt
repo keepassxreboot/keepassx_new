@@ -262,6 +262,8 @@ if(WITH_XC_FDOSECRETS)
     set(fdosecrets_LIB fdosecrets)
 endif()
 
+add_subdirectory(thirdparty)
+
 set(autotype_SOURCES
         core/Tools.cpp
         autotype/AutoType.cpp
@@ -318,9 +320,9 @@ target_link_libraries(keepassx_core
         Qt5::Network
         Qt5::Widgets
         ${BOTAN2_LIBRARIES}
-        ${YUBIKEY_LIBRARIES}
         ${ZXCVBN_LIBRARIES}
         ${ZLIB_LIBRARIES}
+        ${thirdparty_LIBRARIES}
 	)
 
 if(WITH_XC_SSHAGENT)
@@ -336,8 +338,7 @@ if(APPLE)
         target_link_libraries(keepassx_core Qt5::MacExtras)
     endif()
     if(WITH_XC_TOUCHID)
-        target_link_libraries(keepassx_core "-framework Security")
-        target_link_libraries(keepassx_core "-framework LocalAuthentication")
+        target_link_libraries(keepassx_core "-framework Security -framework LocalAuthentication")
     endif()
 endif()
 if(HAIKU)

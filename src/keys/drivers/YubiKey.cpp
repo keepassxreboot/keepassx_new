@@ -16,15 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ykcore.h>
-#include <ykdef.h>
-#include <ykpers-version.h>
-#include <ykstatus.h>
+#include "YubiKey.h"
 
 #include "core/Tools.h"
 #include "crypto/Random.h"
 
-#include "YubiKey.h"
+#include "thirdparty/ykcore/ykcore.h"
+#include "thirdparty/ykcore/ykdef.h"
+#include "thirdparty/ykcore/ykstatus.h"
 
 #include <QtConcurrent>
 
@@ -32,35 +31,22 @@ namespace
 {
     constexpr int MAX_KEYS = 4;
 
-    YK_KEY* openKey(int ykIndex, int okIndex, bool* onlyKey = nullptr)
+    YK_KEY* openKey(int index)
     {
-        YK_KEY* key = nullptr;
-        if (onlyKey) {
-            *onlyKey = false;
-        }
-#if YKPERS_VERSION_NUMBER >= 0x011200
-        // This function is only available in ykcore >= 1.18.0
-        key = yk_open_key(ykIndex);
-#else
-        // Only allow for the first found key to be used
-        if (ykIndex == 0) {
-            key = yk_open_first_key();
-        }
-#endif
-#if YKPERS_VERSION_NUMBER >= 0x011400
-        // New fuction available in yubikey-personalization version >= 1.20.0 that allows
-        // selecting device VID/PID (yk_open_key_vid_pid)
-        if (!key) {
-            static const int device_pids[] = {0x60fc}; // OnlyKey PID
-            key = yk_open_key_vid_pid(0x1d50, device_pids, 1, okIndex);
-            if (onlyKey) {
-                *onlyKey = true;
-            }
-        }
-#else
-        Q_UNUSED(okIndex);
-#endif
-        return key;
+        static const int vids[] = {YUBICO_VID, ONLYKEY_VID};
+        static const int pids[] = {YUBIKEY_PID,
+                                   NEO_OTP_PID,
+                                   NEO_OTP_CCID_PID,
+                                   NEO_OTP_U2F_PID,
+                                   NEO_OTP_U2F_CCID_PID,
+                                   YK4_OTP_PID,
+                                   YK4_OTP_U2F_PID,
+                                   YK4_OTP_CCID_PID,
+                                   YK4_OTP_U2F_CCID_PID,
+                                   PLUS_U2F_OTP_PID,
+                                   ONLYKEY_PID};
+
+        return yk_open_key_vid_pid(vids, sizeof(vids) / sizeof(vids[0]), pids, sizeof(pids) / sizeof(pids[0]), index);
     }
 
     void closeKey(YK_KEY* key)
@@ -77,19 +63,21 @@ namespace
 
     YK_KEY* openKeySerial(unsigned int serial)
     {
-        bool onlykey;
-        for (int i = 0, j = 0; i + j < MAX_KEYS;) {
-            auto* yk_key = openKey(i, j, &onlykey);
+        for (int i = 0; i < MAX_KEYS; ++i) {
+            auto* yk_key = openKey(i);
             if (yk_key) {
-                onlykey ? ++j : ++i;
                 // If the provided serial number is 0, or the key matches the serial, return it
                 if (serial == 0 || getSerial(yk_key) == serial) {
                     return yk_key;
                 }
                 closeKey(yk_key);
-            } else {
+            } else if (yk_errno == YK_ENOKEY) {
                 // No more connected keys
                 break;
+            } else if (yk_errno == YK_EUSBERR) {
+                qWarning("Hardware key USB error: %s", yk_usb_strerror());
+            } else {
+                qWarning("Hardware key error: %s", yk_strerror(yk_errno));
             }
         }
         return nullptr;
@@ -152,12 +140,9 @@ void YubiKey::findValidKeys()
         m_foundKeys.clear();
 
         // Try to detect up to 4 connected hardware keys
-        for (int i = 0, j = 0; i + j < MAX_KEYS;) {
-            bool onlyKey = false;
-            auto yk_key = openKey(i, j, &onlyKey);
+        for (int i = 0; i < MAX_KEYS; ++i) {
+            auto yk_key = openKey(i);
             if (yk_key) {
-                onlyKey ? ++j : ++i;
-                auto vender = onlyKey ? QStringLiteral("OnlyKey") : QStringLiteral("YubiKey");
                 auto serial = getSerial(yk_key);
                 if (serial == 0) {
                     closeKey(yk_key);
@@ -168,6 +153,8 @@ void YubiKey::findValidKeys()
                 yk_get_status(yk_key, st);
                 int vid, pid;
                 yk_get_key_vid_pid(yk_key, &vid, &pid);
+
+                auto vendor = vid == 0x1d50 ? QStringLiteral("OnlyKey") : QStringLiteral("YubiKey");
 
                 bool wouldBlock;
                 QList<QPair<int, QString>> ykSlots;
@@ -181,12 +168,12 @@ void YubiKey::findValidKeys()
                     // if it is enabled for the slot resulting in failed detection
                     if (pid <= NEO_OTP_U2F_CCID_PID) {
                         auto display = tr("%1 [%2] Configured Slot - %3")
-                                           .arg(vender, QString::number(serial), QString::number(slot));
+                                           .arg(vendor, QString::number(serial), QString::number(slot));
                         ykSlots.append({slot, display});
                     } else if (performTestChallenge(yk_key, slot, &wouldBlock)) {
                         auto display =
                             tr("%1 [%2] Challenge-Response - Slot %3 - %4")
-                                .arg(vender,
+                                .arg(vendor,
                                      QString::number(serial),
                                      QString::number(slot),
                                      wouldBlock ? tr("Press", "Challenge-Response Key interaction request")
@@ -203,9 +190,13 @@ void YubiKey::findValidKeys()
                 closeKey(yk_key);
 
                 Tools::wait(100);
-            } else {
+            } else if (yk_errno == YK_ENOKEY) {
                 // No more keys are connected
                 break;
+            } else if (yk_errno == YK_EUSBERR) {
+                qWarning("Hardware key USB error: %s", yk_usb_strerror());
+            } else {
+                qWarning("Hardware key error: %s", yk_strerror(yk_errno));
             }
         }
 

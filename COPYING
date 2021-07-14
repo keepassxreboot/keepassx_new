@@ -237,3 +237,9 @@ Files: share/icons/application/scalable/actions/hibp.svg
        share/icons/database/C64_Apple.svg
 Copyright: GPL-2+
 Comment: from the Simple Icons repo (https://github.com/simple-icons/simple-icons/)
+
+Files: src/thirdparty/ykcore/yk*
+       src/thirdparty/ykcore/yubikey.h
+Copyright: 2006-2015, Yubico AB
+License: BSD-2-Clause
+Comment: from the yubikey-personalization repo (https://github.com/Yubico/yubikey-personalization)
