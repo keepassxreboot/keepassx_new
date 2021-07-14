@@ -108,6 +108,64 @@ void EntryModel::setEntries(const QList<Entry*>& entries)
     endResetModel();
 }
 
+bool EntryModel::dropMimeData(const QMimeData* data,
+                              Qt::DropAction action,
+                              int row,
+                              int column,
+                              const QModelIndex& parent)
+{
+    Q_UNUSED(column);
+    if (action == Qt::IgnoreAction) {
+        return true;
+    }
+
+    if (!data || (action != Qt::MoveAction && action != Qt::CopyAction) || !parent.isValid()) {
+        return false;
+    }
+
+    // check if the format is supported
+    QStringList types = mimeTypes();
+    Q_ASSERT(types.size() == 1);
+
+    bool isEntry = data->hasFormat(types.at(0));
+    if (!isEntry) {
+        return false;
+    }
+
+    int toRow;
+
+    if (row != -1)
+        toRow = row;
+    else if (parent.isValid())
+        toRow = parent.row();
+    else
+        toRow = rowCount(QModelIndex());
+
+    // decode and insert
+    QByteArray encoded = data->data(types.at(0));
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+
+    while (!stream.atEnd()) {
+        QUuid dbUuid;
+        QUuid entryUuid;
+        stream >> dbUuid >> entryUuid;
+
+        Database* db = Database::databaseByUuid(dbUuid);
+        if (!db) {
+            continue;
+        }
+
+        Entry* dragEntry = db->rootGroup()->findEntryByUuid(entryUuid);
+        if (!dragEntry || !db->rootGroup()->findEntryByUuid(dragEntry->uuid())) {
+            continue;
+        }
+
+        m_group->emit moveEntryToRowNum(dragEntry, toRow);
+    }
+
+    return true;
+}
+
 int EntryModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) {
@@ -430,7 +488,7 @@ QVariant EntryModel::headerData(int section, Qt::Orientation orientation, int ro
 
 Qt::DropActions EntryModel::supportedDropActions() const
 {
-    return Qt::IgnoreAction;
+    return (Qt::MoveAction | Qt::CopyAction);
 }
 
 Qt::DropActions EntryModel::supportedDragActions() const
@@ -443,7 +501,7 @@ Qt::ItemFlags EntryModel::flags(const QModelIndex& modelIndex) const
     if (!modelIndex.isValid()) {
         return Qt::NoItemFlags;
     } else {
-        return QAbstractItemModel::flags(modelIndex) | Qt::ItemIsDragEnabled;
+        return QAbstractItemModel::flags(modelIndex) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
     }
 }
 
@@ -529,6 +587,14 @@ void EntryModel::entryRemoved()
     endRemoveRows();
 }
 
+void EntryModel::entryAboutToMoveToRowNum(int fromRow, int toRow)
+{
+    beginMoveRows(QModelIndex(), fromRow, fromRow, QModelIndex(), toRow + 1);
+    if (m_group) {
+        m_entries.move(fromRow, toRow);
+    }
+}
+
 void EntryModel::entryAboutToMoveUp(int row)
 {
     beginMoveRows(QModelIndex(), row, row, QModelIndex(), row - 1);
@@ -598,6 +664,7 @@ void EntryModel::makeConnections(const Group* group)
     connect(group, SIGNAL(entryAdded(Entry*)), SLOT(entryAdded(Entry*)));
     connect(group, SIGNAL(entryAboutToRemove(Entry*)), SLOT(entryAboutToRemove(Entry*)));
     connect(group, SIGNAL(entryRemoved(Entry*)), SLOT(entryRemoved()));
+    connect(group, SIGNAL(entryAboutToMoveToRowNum(int, int)), SLOT(entryAboutToMoveToRowNum(int, int)));
     connect(group, SIGNAL(entryAboutToMoveUp(int)), SLOT(entryAboutToMoveUp(int)));
     connect(group, SIGNAL(entryMovedUp()), SLOT(entryMovedUp()));
     connect(group, SIGNAL(entryAboutToMoveDown(int)), SLOT(entryAboutToMoveDown(int)));

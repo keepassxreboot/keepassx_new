@@ -161,6 +161,7 @@ public:
 
     void addEntry(Entry* entry);
     void removeEntry(Entry* entry);
+    void moveEntryToRowNum(Entry* entry, int toRowNum);
     void moveEntryUp(Entry* entry);
     void moveEntryDown(Entry* entry);
 
@@ -186,6 +187,7 @@ signals:
     void entryAboutToRemove(Entry* entry);
     void entryRemoved(Entry* entry);
     void entryAboutToMoveUp(int row);
+    void entryAboutToMoveToRowNum(int fromRow, int toRow);
     void entryMovedUp();
     void entryAboutToMoveDown(int row);
     void entryMovedDown();

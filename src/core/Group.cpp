@@ -951,6 +951,19 @@ void Group::removeEntry(Entry* entry)
     emit entryRemoved(entry);
 }
 
+void Group::moveEntryToRowNum(Entry* entry, int toRowNum)
+{
+    int fromRowNum = m_entries.indexOf(entry);
+    if (fromRowNum < 0 || toRowNum < 0 || fromRowNum == toRowNum + 1) {
+        return;
+    }
+
+    emit entryAboutToMoveToRowNum(fromRowNum, toRowNum);
+    m_entries.move(fromRowNum, toRowNum);
+    emit entryMovedUp();
+    emit groupNonDataChange();
+}
+
 void Group::moveEntryUp(Entry* entry)
 {
     int row = m_entries.indexOf(entry);

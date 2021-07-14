@@ -71,6 +71,9 @@ private slots:
     void contextMenuShortcutPressed();
     void sortIndicatorChanged(int logicalIndex, Qt::SortOrder order);
 
+protected:
+    void dragMoveEvent(QDragMoveEvent* event) override;
+
 private:
     void resetFixedColumns();
     bool isColumnHidden(int logicalIndex);
