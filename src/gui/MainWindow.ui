@@ -740,6 +740,20 @@
     <string notr="true">{PASSWORD}{ENTER}</string>
    </property>
   </action>
+  <action name="actionEntryAutoTypeTOTP">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string notr="true">{TOTP}</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">{TOTP}</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">{TOTP}</string>
+   </property>
+  </action>
   <action name="actionEntryDownloadIcon">
    <property name="text">
     <string>Download &amp;Favicon</string>

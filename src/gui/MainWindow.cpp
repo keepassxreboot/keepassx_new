@@ -157,6 +157,7 @@ MainWindow::MainWindow()
     autotypeMenu->addAction(m_ui->actionEntryAutoTypeUsernameEnter);
     autotypeMenu->addAction(m_ui->actionEntryAutoTypePassword);
     autotypeMenu->addAction(m_ui->actionEntryAutoTypePasswordEnter);
+    autotypeMenu->addAction(m_ui->actionEntryAutoTypeTOTP);
     m_ui->actionEntryAutoType->setMenu(autotypeMenu);
     auto autoTypeButton = qobject_cast<QToolButton*>(m_ui->toolBar->widgetForAction(m_ui->actionEntryAutoType));
     if (autoTypeButton) {
@@ -378,6 +379,7 @@ MainWindow::MainWindow()
     m_ui->actionEntryAutoTypeUsernameEnter->setIcon(icons()->icon("auto-type"));
     m_ui->actionEntryAutoTypePassword->setIcon(icons()->icon("auto-type"));
     m_ui->actionEntryAutoTypePasswordEnter->setIcon(icons()->icon("auto-type"));
+    m_ui->actionEntryAutoTypeTOTP->setIcon(icons()->icon("auto-type"));
     m_ui->actionEntryMoveUp->setIcon(icons()->icon("move-up"));
     m_ui->actionEntryMoveDown->setIcon(icons()->icon("move-down"));
     m_ui->actionEntryCopyUsername->setIcon(icons()->icon("username-copy"));
@@ -480,6 +482,7 @@ MainWindow::MainWindow()
         m_ui->actionEntryAutoTypePassword, SIGNAL(triggered()), SLOT(performAutoTypePassword()));
     m_actionMultiplexer.connect(
         m_ui->actionEntryAutoTypePasswordEnter, SIGNAL(triggered()), SLOT(performAutoTypePasswordEnter()));
+    m_actionMultiplexer.connect(m_ui->actionEntryAutoTypeTOTP, SIGNAL(triggered()), SLOT(performAutoTypeTOTP()));
     m_actionMultiplexer.connect(m_ui->actionEntryOpenUrl, SIGNAL(triggered()), SLOT(openUrl()));
     m_actionMultiplexer.connect(m_ui->actionEntryDownloadIcon, SIGNAL(triggered()), SLOT(downloadSelectedFavicons()));
 #ifdef WITH_XC_SSHAGENT
@@ -820,6 +823,8 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
             m_ui->actionEntryAutoTypePassword->setEnabled(singleEntrySelected && dbWidget->currentEntryHasPassword());
             m_ui->actionEntryAutoTypePasswordEnter->setEnabled(singleEntrySelected
                                                                && dbWidget->currentEntryHasPassword());
+            m_ui->actionEntryAutoTypeTOTP->setEnabled(singleEntrySelected && dbWidget->currentEntryHasTotp());
+            m_ui->actionEntryAutoTypeTOTP->setVisible(singleEntrySelected && dbWidget->currentEntryHasTotp());
             m_ui->actionEntryOpenUrl->setEnabled(singleEntrySelected && dbWidget->currentEntryHasUrl());
             m_ui->actionEntryTotp->setEnabled(singleEntrySelected && dbWidget->currentEntryHasTotp());
             m_ui->actionEntryCopyTotp->setEnabled(singleEntrySelected && dbWidget->currentEntryHasTotp());
