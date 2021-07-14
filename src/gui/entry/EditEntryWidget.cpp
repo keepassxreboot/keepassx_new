@@ -66,6 +66,7 @@ EditEntryWidget::EditEntryWidget(QWidget* parent)
     , m_sshAgentUi(new Ui::EditEntryWidgetSSHAgent())
     , m_historyUi(new Ui::EditEntryWidgetHistory())
     , m_browserUi(new Ui::EditEntryWidgetBrowser())
+    , m_attachments(new EntryAttachments())
     , m_customData(new CustomData())
     , m_mainWidget(new QScrollArea())
     , m_advancedWidget(new QWidget())
@@ -537,7 +538,7 @@ void EditEntryWidget::setupSSHAgent()
     connect(m_sshAgentUi->decryptButton, &QPushButton::clicked, this, &EditEntryWidget::decryptPrivateKey);
     connect(m_sshAgentUi->copyToClipboardButton, &QPushButton::clicked, this, &EditEntryWidget::copyPublicKey);
 
-    connect(m_advancedUi->attachmentsWidget->entryAttachments(), &EntryAttachments::modified,
+    connect(m_attachments.data(), &EntryAttachments::modified,
             this, &EditEntryWidget::updateSSHAgentAttachments);
     // clang-format on
 
@@ -576,7 +577,7 @@ void EditEntryWidget::updateSSHAgentAttachments()
 {
     // detect if KeeAgent.settings was removed by hand and reset settings
     if (m_entry && KeeAgentSettings::inEntryAttachments(m_entry->attachments())
-        && !KeeAgentSettings::inEntryAttachments(m_advancedUi->attachmentsWidget->entryAttachments())) {
+        && !KeeAgentSettings::inEntryAttachments(m_attachments.data())) {
         m_sshAgentSettings.reset();
         setSSHAgentSettings();
     }
@@ -584,8 +585,7 @@ void EditEntryWidget::updateSSHAgentAttachments()
     m_sshAgentUi->attachmentComboBox->clear();
     m_sshAgentUi->attachmentComboBox->addItem("");
 
-    auto attachments = m_advancedUi->attachmentsWidget->entryAttachments();
-    for (const QString& fileName : attachments->keys()) {
+    for (const QString& fileName : m_attachments->keys()) {
         if (fileName == "KeeAgent.settings") {
             continue;
         }
@@ -697,7 +697,7 @@ bool EditEntryWidget::getOpenSSHKey(OpenSSHKey& key, bool decrypt)
     if (!settings.toOpenSSHKey(m_mainUi->usernameComboBox->lineEdit()->text(),
                                m_mainUi->passwordEdit->text(),
                                m_db->filePath(),
-                               m_advancedUi->attachmentsWidget->entryAttachments(),
+                               m_attachments.data(),
                                key,
                                decrypt)) {
         showMessage(settings.errorString(), MessageWidget::Error);
@@ -827,6 +827,7 @@ void EditEntryWidget::loadEntry(Entry* entry,
 
 void EditEntryWidget::setForms(Entry* entry, bool restore)
 {
+    m_attachments->copyDataFrom(entry->attachments());
     m_customData->copyDataFrom(entry->customData());
 
     m_mainUi->titleEdit->setReadOnly(m_history);
@@ -887,7 +888,7 @@ void EditEntryWidget::setForms(Entry* entry, bool restore)
 
     m_mainUi->notesEdit->setPlainText(entry->notes());
 
-    m_advancedUi->attachmentsWidget->setEntryAttachments(entry->attachments());
+    m_advancedUi->attachmentsWidget->linkAttachments(m_attachments.data());
     m_entryAttributes->copyCustomKeysFrom(entry->attributes());
 
     if (m_attributesModel->rowCount() != 0) {
@@ -1089,7 +1090,6 @@ bool EditEntryWidget::commitEntry()
     }
 
     m_historyModel->setEntries(m_entry->historyItems());
-    m_advancedUi->attachmentsWidget->setEntryAttachments(m_entry->attachments());
 
     showMessage(tr("Entry updated successfully."), MessageWidget::Positive);
     setModified(false);
@@ -1109,7 +1109,7 @@ void EditEntryWidget::updateEntryData(Entry* entry) const
     QRegularExpression newLineRegex("(?:\r?\n|\r)");
 
     entry->attributes()->copyCustomKeysFrom(m_entryAttributes);
-    entry->attachments()->copyDataFrom(m_advancedUi->attachmentsWidget->entryAttachments());
+    entry->attachments()->copyDataFrom(m_attachments.data());
     entry->customData()->copyDataFrom(m_customData.data());
     entry->setTitle(m_mainUi->titleEdit->text().replace(newLineRegex, " "));
     entry->setUsername(m_mainUi->usernameComboBox->lineEdit()->text().replace(newLineRegex, " "));
@@ -1211,7 +1211,8 @@ void EditEntryWidget::clear()
     m_mainUi->notesEdit->clear();
 
     m_entryAttributes->clear();
-    m_advancedUi->attachmentsWidget->clearAttachments();
+    m_attachments->clear();
+    m_customData->clear();
     m_autoTypeAssoc->clear();
     m_historyModel->clear();
     m_iconsWidget->reset();

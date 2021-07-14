@@ -329,6 +329,7 @@ void DatabaseWidget::clearAllWidgets()
     m_editEntryWidget->clear();
     m_historyEditEntryWidget->clear();
     m_editGroupWidget->clear();
+    m_previewView->clear();
 }
 
 void DatabaseWidget::emitCurrentModeChanged()

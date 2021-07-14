@@ -19,6 +19,7 @@
 #define KEEPASSX_ENTRYATTACHMENTSMODEL_H
 
 #include <QAbstractListModel>
+#include <QPointer>
 
 class EntryAttachments;
 
@@ -55,7 +56,7 @@ private slots:
     void setReadOnly(bool readOnly);
 
 private:
-    EntryAttachments* m_entryAttachments;
+    QPointer<EntryAttachments> m_entryAttachments;
     QStringList m_headers;
     bool m_readOnly = false;
 };

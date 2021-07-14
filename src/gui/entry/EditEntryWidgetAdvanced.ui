@@ -174,14 +174,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="EntryAttachmentsWidget" name="attachmentsWidget" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
-       </widget>
+       <widget class="EntryAttachmentsWidget" name="attachmentsWidget" native="true"/>
       </item>
      </layout>
     </widget>

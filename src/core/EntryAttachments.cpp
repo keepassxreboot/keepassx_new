@@ -18,12 +18,23 @@
 #include "EntryAttachments.h"
 
 #include "core/Global.h"
+#include "crypto/Random.h"
 
+#include <QDesktopServices>
+#include <QDir>
+#include <QProcessEnvironment>
 #include <QSet>
+#include <QTemporaryFile>
+#include <QUrl>
 
 EntryAttachments::EntryAttachments(QObject* parent)
     : ModifiableObject(parent)
 {
+}
+
+EntryAttachments::~EntryAttachments()
+{
+    clear();
 }
 
 QList<QString> EntryAttachments::keys() const
@@ -82,6 +93,10 @@ void EntryAttachments::remove(const QString& key)
 
     m_attachments.remove(key);
 
+    if (m_openedAttachments.contains(key)) {
+        disconnectAndEraseExternalFile(m_openedAttachments.value(key));
+    }
+
     emit removed(key);
     emitModified();
 }
@@ -92,19 +107,16 @@ void EntryAttachments::remove(const QStringList& keys)
         return;
     }
 
+    bool emitStatus = modifiedSignalEnabled();
+    setEmitModified(false);
+
     bool isModified = false;
     for (const QString& key : keys) {
-        if (!m_attachments.contains(key)) {
-            Q_ASSERT_X(
-                false, "EntryAttachments::remove", qPrintable(QString("Can't find attachment for key %1").arg(key)));
-            continue;
-        }
-
-        isModified = true;
-        emit aboutToBeRemoved(key);
-        m_attachments.remove(key);
-        emit removed(key);
+        isModified |= m_attachments.contains(key);
+        remove(key);
     }
+
+    setEmitModified(emitStatus);
 
     if (isModified) {
         emitModified();
@@ -133,14 +145,46 @@ void EntryAttachments::clear()
 
     m_attachments.clear();
 
+    const auto externalPath = m_openedAttachments.values();
+    for (auto& path : externalPath) {
+        disconnectAndEraseExternalFile(path);
+    }
+
     emit reset();
     emitModified();
+}
+
+void EntryAttachments::disconnectAndEraseExternalFile(const QString& path)
+{
+    if (m_openedAttachmentsInverse.contains(path)) {
+        m_attachmentFileWatchers.value(path)->stop();
+        m_attachmentFileWatchers.remove(path);
+
+        m_openedAttachments.remove(m_openedAttachmentsInverse.value(path));
+        m_openedAttachmentsInverse.remove(path);
+    }
+
+    QFile f(path);
+    if (f.open(QFile::ReadWrite)) {
+        qint64 blocks = f.size() / 128 + 1;
+        for (qint64 i = 0; i < blocks; ++i) {
+            f.write(randomGen()->randomArray(128));
+        }
+        f.close();
+    }
+    f.remove();
 }
 
 void EntryAttachments::copyDataFrom(const EntryAttachments* other)
 {
     if (*this != *other) {
         emit aboutToBeReset();
+
+        // Reset all externally opened files
+        const auto externalPath = m_openedAttachments.values();
+        for (auto& path : externalPath) {
+            disconnectAndEraseExternalFile(path);
+        }
 
         m_attachments = other->m_attachments;
 
@@ -166,4 +210,55 @@ int EntryAttachments::attachmentsSize() const
         size += it.key().toUtf8().size() + it.value().size();
     }
     return size;
+}
+
+bool EntryAttachments::openAttachment(const QString& key, QString* errorMessage)
+{
+    if (!m_openedAttachments.contains(key)) {
+        const QByteArray attachmentData = value(key);
+        auto ext = key.contains(".") ? "." + key.split(".").last() : "";
+
+#ifdef KEEPASSXC_DIST_SNAP
+        const QString tmpFileTemplate =
+            QString("%1/XXXXXXXXXXXX%2").arg(QProcessEnvironment::systemEnvironment().value("SNAP_USER_DATA"), ext);
+#else
+        const QString tmpFileTemplate = QDir::temp().absoluteFilePath(QString("XXXXXXXXXXXX").append(ext));
+#endif
+
+        QTemporaryFile tmpFile(tmpFileTemplate);
+
+        const bool saveOk = tmpFile.open() && tmpFile.setPermissions(QFile::ReadOwner | QFile::WriteOwner)
+                            && tmpFile.write(attachmentData) == attachmentData.size() && tmpFile.flush();
+
+        if (!saveOk && errorMessage) {
+            *errorMessage = tr("%1 - %2").arg(key, tmpFile.errorString());
+            return false;
+        }
+
+        tmpFile.close();
+        tmpFile.setAutoRemove(false);
+        m_openedAttachments.insert(key, tmpFile.fileName());
+        m_openedAttachmentsInverse.insert(tmpFile.fileName(), key);
+
+        auto watcher = QSharedPointer<FileWatcher>::create();
+        watcher->start(tmpFile.fileName(), 5);
+        connect(watcher.data(), &FileWatcher::fileChanged, this, &EntryAttachments::attachmentFileModified);
+        m_attachmentFileWatchers.insert(tmpFile.fileName(), watcher);
+    }
+
+    const bool openOk = QDesktopServices::openUrl(QUrl::fromLocalFile(m_openedAttachments.value(key)));
+    if (!openOk && errorMessage) {
+        *errorMessage = tr("Cannot open file \"%1\"").arg(key);
+        return false;
+    }
+
+    return true;
+}
+
+void EntryAttachments::attachmentFileModified(const QString& path)
+{
+    auto it = m_openedAttachmentsInverse.find(path);
+    if (it != m_openedAttachmentsInverse.end()) {
+        emit valueModifiedExternally(it.value(), path);
+    }
 }
