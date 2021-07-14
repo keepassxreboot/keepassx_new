@@ -37,8 +37,11 @@ public:
     bool isEnabled() const;
     void setEnabled(bool enabled);
     QString socketPath(bool allowOverride = true) const;
+    QString securityKeyProvider(bool allowOverride = true) const;
     QString authSockOverride() const;
+    QString securityKeyProviderOverride() const;
     void setAuthSockOverride(QString& authSockOverride);
+    void setSecurityKeyProviderOverride(QString& securityKeyProviderOverride);
 #ifdef Q_OS_WIN
     bool useOpenSSH() const;
     void setUseOpenSSH(bool useOpenSSH);
@@ -72,6 +75,7 @@ private:
 
     const quint8 SSH_AGENT_CONSTRAIN_LIFETIME = 1;
     const quint8 SSH_AGENT_CONSTRAIN_CONFIRM = 2;
+    const quint8 SSH_AGENT_CONSTRAIN_EXTENSION = 255;
 
     bool sendMessage(const QByteArray& in, QByteArray& out);
 #ifdef Q_OS_WIN

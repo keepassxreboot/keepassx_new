@@ -52,6 +52,11 @@ void AgentSettingsWidget::loadSettings()
     auto sshAuthSockOverride = sshAgent()->authSockOverride();
     m_ui->sshAuthSockLabel->setText(sshAuthSock.isEmpty() ? tr("(empty)") : sshAuthSock);
     m_ui->sshAuthSockOverrideEdit->setText(sshAuthSockOverride);
+    auto sshSecurityKeyProvider = sshAgent()->securityKeyProvider(false);
+    auto sshSecurityKeyProviderOverride = sshAgent()->securityKeyProviderOverride();
+    m_ui->sshSecurityKeyProviderLabel->setText(sshSecurityKeyProvider.isEmpty() ? tr("(empty)")
+                                                                                : sshSecurityKeyProvider);
+    m_ui->sshSecurityKeyProviderOverrideEdit->setText(sshSecurityKeyProviderOverride);
 #endif
 
     m_ui->sshAuthSockMessageWidget->setVisible(sshAgentEnabled);
@@ -82,6 +87,8 @@ void AgentSettingsWidget::saveSettings()
 {
     auto sshAuthSockOverride = m_ui->sshAuthSockOverrideEdit->text();
     sshAgent()->setAuthSockOverride(sshAuthSockOverride);
+    auto sshSecurityKeyProviderOverride = m_ui->sshSecurityKeyProviderOverrideEdit->text();
+    sshAgent()->setSecurityKeyProviderOverride(sshSecurityKeyProviderOverride);
 #ifdef Q_OS_WIN
     sshAgent()->setUseOpenSSH(m_ui->useOpenSSHCheckBox->isChecked());
 #endif

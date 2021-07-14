@@ -109,18 +109,20 @@ bool ASN1Key::parseDSA(QByteArray& ba, OpenSSHKey& key)
     readInt(stream, y);
     readInt(stream, x);
 
-    QList<QByteArray> publicData;
-    publicData.append(p);
-    publicData.append(q);
-    publicData.append(g);
-    publicData.append(y);
+    QByteArray publicData;
+    BinaryStream publicDataStream(&publicData);
+    publicDataStream.writeString(p);
+    publicDataStream.writeString(q);
+    publicDataStream.writeString(g);
+    publicDataStream.writeString(y);
 
-    QList<QByteArray> privateData;
-    privateData.append(p);
-    privateData.append(q);
-    privateData.append(g);
-    privateData.append(y);
-    privateData.append(x);
+    QByteArray privateData;
+    BinaryStream privateDataStream(&privateData);
+    privateDataStream.writeString(p);
+    privateDataStream.writeString(q);
+    privateDataStream.writeString(g);
+    privateDataStream.writeString(y);
+    privateDataStream.writeString(x);
 
     key.setType("ssh-dss");
     key.setPublicData(publicData);
@@ -148,17 +150,19 @@ bool ASN1Key::parseRSA(QByteArray& ba, OpenSSHKey& key)
     readInt(stream, qinv);
 
     // Note: To properly calculate the key fingerprint, e and n are reversed per RFC 4253
-    QList<QByteArray> publicData;
-    publicData.append(e);
-    publicData.append(n);
+    QByteArray publicData;
+    BinaryStream publicDataStream(&publicData);
+    publicDataStream.writeString(e);
+    publicDataStream.writeString(n);
 
-    QList<QByteArray> privateData;
-    privateData.append(n);
-    privateData.append(e);
-    privateData.append(d);
-    privateData.append(qinv);
-    privateData.append(p);
-    privateData.append(q);
+    QByteArray privateData;
+    BinaryStream privateDataStream(&privateData);
+    privateDataStream.writeString(n);
+    privateDataStream.writeString(e);
+    privateDataStream.writeString(d);
+    privateDataStream.writeString(qinv);
+    privateDataStream.writeString(p);
+    privateDataStream.writeString(q);
 
     key.setType("ssh-rsa");
     key.setPublicData(publicData);
