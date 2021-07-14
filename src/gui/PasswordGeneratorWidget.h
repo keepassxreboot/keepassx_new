@@ -60,11 +60,13 @@ public slots:
     void regeneratePassword();
     void applyPassword();
     void copyPassword();
+    void autoTypePassword();
     void setPasswordVisible(bool visible);
 
 signals:
     void appliedPassword(const QString& password);
     void closed();
+    void doAutoTypePassword(const QString& password);
 
 private slots:
     void updateButtonsEnabled(const QString& password);

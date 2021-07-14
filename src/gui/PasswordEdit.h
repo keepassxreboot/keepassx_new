@@ -38,12 +38,14 @@ public:
 public slots:
     void setShowPassword(bool show);
     void updateRepeatStatus();
+    void doAutoTypePasswordEdit(const QString& password);
 
 protected:
     bool event(QEvent* event) override;
 
 signals:
     void capslockToggled(bool capslockOn);
+    void doAutoTypePasswordEntry(const QString& password);
 
 private slots:
     void autocompletePassword(const QString& password);

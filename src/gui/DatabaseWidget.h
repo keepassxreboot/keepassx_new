@@ -247,6 +247,7 @@ private slots:
     // Database autoreload slots
     void reloadDatabaseFile();
     void restoreGroupEntryFocus(const QUuid& groupUuid, const QUuid& EntryUuid);
+    void doAutoTypePasswordGenerated(QString password);
 
 private:
     int addChildWidget(QWidget* w);

@@ -177,6 +177,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     connect(m_entryView, SIGNAL(entrySelectionChanged(Entry*)), SLOT(onEntryChanged(Entry*)));
     connect(m_editEntryWidget, SIGNAL(editFinished(bool)), SLOT(switchToMainView(bool)));
     connect(m_editEntryWidget, SIGNAL(historyEntryActivated(Entry*)), SLOT(switchToHistoryView(Entry*)));
+    connect(m_editEntryWidget, SIGNAL(doAutoTypePasswordGeneratedDB(QString)), SLOT(doAutoTypePasswordGenerated(QString)));
     connect(m_historyEditEntryWidget, SIGNAL(editFinished(bool)), SLOT(switchBackToEntryEdit()));
     connect(m_editGroupWidget, SIGNAL(editFinished(bool)), SLOT(switchToMainView(bool)));
     connect(m_reportsDialog, SIGNAL(editFinished(bool)), SLOT(switchToMainView(bool)));
@@ -1629,6 +1630,11 @@ void DatabaseWidget::restoreGroupEntryFocus(const QUuid& groupUuid, const QUuid&
             m_entryView->setCurrentEntry(entry);
         }
     }
+}
+
+void DatabaseWidget::doAutoTypePasswordGenerated(QString password)
+{
+    performAutoType(password);
 }
 
 bool DatabaseWidget::isGroupSelected() const

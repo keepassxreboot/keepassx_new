@@ -420,6 +420,10 @@ void EditEntryWidget::setupEntryUpdate()
     connect(m_mainUi->titleEdit, SIGNAL(textChanged(QString)), this, SLOT(setModified()));
     connect(m_mainUi->usernameComboBox->lineEdit(), SIGNAL(textChanged(QString)), this, SLOT(setModified()));
     connect(m_mainUi->passwordEdit, SIGNAL(textChanged(QString)), this, SLOT(setModified()));
+    connect(m_mainUi->passwordEdit,
+            SIGNAL(doAutoTypePasswordEntry(QString)),
+            this,
+            SLOT(doAutoTypePasswordGenerated(QString)));
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), this, SLOT(setModified()));
 #ifdef WITH_XC_NETWORKING
     connect(m_mainUi->urlEdit, SIGNAL(textChanged(QString)), this, SLOT(updateFaviconButtonEnable(QString)));
@@ -1554,4 +1558,9 @@ void EditEntryWidget::pickColor()
         setupColorButton(isForeground, newColor);
         setModified(true);
     }
+}
+
+void EditEntryWidget::doAutoTypePasswordGenerated(const QString& password)
+{
+    emit doAutoTypePasswordGeneratedDB(password);
 }
