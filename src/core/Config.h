@@ -44,6 +44,7 @@ public:
         AutoSaveNonDataChanges,
         BackupBeforeSave,
         UseAtomicSaves,
+        UseDirectWriteSaves,
         SearchLimitGroup,
         MinimizeOnOpenUrl,
         HideWindowOnCopy,

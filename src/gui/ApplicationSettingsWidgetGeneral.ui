@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>605</width>
-    <height>1279</height>
+    <height>968</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0">
@@ -59,7 +59,7 @@
             <x>0</x>
             <y>0</y>
             <width>581</width>
-            <height>1235</height>
+            <height>924</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -265,13 +265,6 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="backupBeforeSaveCheckBox">
-                <property name="text">
-                 <string>Backup database file before saving</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QCheckBox" name="autoReloadOnChangeCheckBox">
                 <property name="text">
                  <string>Automatically reload the database when modified externally</string>
@@ -279,14 +272,71 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="useAtomicSavesCheckBox">
+               <widget class="QCheckBox" name="backupBeforeSaveCheckBox">
                 <property name="text">
-                 <string>Safely save database files (disable if experiencing problems with Dropbox, etc.)</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Backup database file before saving</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="useAlternativeSaveCheckBox">
+                <property name="text">
+                 <string>Use alternative saving method (may solve problems with Dropbox, Google Drive, GVFS, etc.)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <spacer name="horizontalSpacer_8">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>30</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="alternativeSaveComboBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Temporary file moved into place</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Directly write to database file (dangerous)</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -1046,8 +1096,7 @@
   <tabstop>autoSaveOnExitCheckBox</tabstop>
   <tabstop>autoSaveNonDataChangesCheckBox</tabstop>
   <tabstop>backupBeforeSaveCheckBox</tabstop>
-  <tabstop>autoReloadOnChangeCheckBox</tabstop>
-  <tabstop>useAtomicSavesCheckBox</tabstop>
+  <tabstop>useAlternativeSaveCheckBox</tabstop>
   <tabstop>useGroupIconOnEntryCreationCheckBox</tabstop>
   <tabstop>minimizeOnOpenUrlCheckBox</tabstop>
   <tabstop>hideWindowOnCopyCheckBox</tabstop>

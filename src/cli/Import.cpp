@@ -75,7 +75,7 @@ int Import::execute(const QStringList& arguments)
         return EXIT_FAILURE;
     }
 
-    if (!db->saveAs(dbPath, &errorMessage, true, false)) {
+    if (!db->saveAs(dbPath, Database::Atomic, &errorMessage)) {
         err << QObject::tr("Failed to save the database: %1.").arg(errorMessage) << endl;
         return EXIT_FAILURE;
     }

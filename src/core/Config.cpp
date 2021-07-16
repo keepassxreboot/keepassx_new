@@ -62,6 +62,7 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::AutoSaveNonDataChanges,{QS("AutoSaveNonDataChanges"), Roaming, true}},
     {Config::BackupBeforeSave,{QS("BackupBeforeSave"), Roaming, false}},
     {Config::UseAtomicSaves,{QS("UseAtomicSaves"), Roaming, true}},
+    {Config::UseDirectWriteSaves,{QS("UseDirectWriteSaves"), Local, false}},
     {Config::SearchLimitGroup,{QS("SearchLimitGroup"), Roaming, false}},
     {Config::MinimizeOnOpenUrl,{QS("MinimizeOnOpenUrl"), Roaming, false}},
     {Config::HideWindowOnCopy,{QS("HideWindowOnCopy"), Roaming, false}},

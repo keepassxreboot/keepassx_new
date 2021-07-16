@@ -181,7 +181,7 @@ bool Database::isSaving()
  * @param backup Backup the existing database file, if exists
  * @return true on success
  */
-bool Database::save(QString* error, bool atomic, bool backup)
+bool Database::save(SaveFlags flags, QString* error)
 {
     Q_ASSERT(!m_data.filePath.isEmpty());
     if (m_data.filePath.isEmpty()) {
@@ -191,7 +191,7 @@ bool Database::save(QString* error, bool atomic, bool backup)
         return false;
     }
 
-    return saveAs(m_data.filePath, error, atomic, backup);
+    return saveAs(m_data.filePath, flags, error);
 }
 
 /**
@@ -212,7 +212,7 @@ bool Database::save(QString* error, bool atomic, bool backup)
  * @param backup Backup the existing database file, if exists
  * @return true on success
  */
-bool Database::saveAs(const QString& filePath, QString* error, bool atomic, bool backup)
+bool Database::saveAs(const QString& filePath, SaveFlags flags, QString* error)
 {
     // Disallow overlapping save operations
     if (isSaving()) {
@@ -260,7 +260,7 @@ bool Database::saveAs(const QString& filePath, QString* error, bool atomic, bool
     QFileInfo fileInfo(filePath);
     auto realFilePath = fileInfo.exists() ? fileInfo.canonicalFilePath() : fileInfo.absoluteFilePath();
     bool isNewFile = !QFile::exists(realFilePath);
-    bool ok = AsyncTask::runAndWaitForFuture([&] { return performSave(realFilePath, error, atomic, backup); });
+    bool ok = AsyncTask::runAndWaitForFuture([&] { return performSave(realFilePath, flags, error); });
     if (ok) {
         markAsClean();
         setFilePath(filePath);
@@ -276,14 +276,16 @@ bool Database::saveAs(const QString& filePath, QString* error, bool atomic, bool
     return ok;
 }
 
-bool Database::performSave(const QString& filePath, QString* error, bool atomic, bool backup)
+bool Database::performSave(const QString& filePath, SaveFlags flags, QString* error)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     QFileInfo info(filePath);
     auto createTime = info.exists() ? info.birthTime() : QDateTime::currentDateTime();
 #endif
 
-    if (atomic) {
+    bool backup = flags.testFlag(Backup);
+
+    if (flags.testFlag(Atomic)) {
         QSaveFile saveFile(filePath);
         if (saveFile.open(QIODevice::WriteOnly)) {
             // write the database to the file
@@ -296,7 +298,7 @@ bool Database::performSave(const QString& filePath, QString* error, bool atomic,
             }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-            // Retain orginal creation time
+            // Retain original creation time
             saveFile.setFileTime(createTime, QFile::FileBirthTime);
 #endif
 
@@ -308,6 +310,24 @@ bool Database::performSave(const QString& filePath, QString* error, bool atomic,
 
         if (error) {
             *error = saveFile.errorString();
+        }
+    } else if (flags.testFlag(DirectWrite)) {
+        // Backup database first
+        if (backup) {
+            backupDatabase(filePath);
+        }
+
+        // Open the original database file for direct-write
+        QFile dbFile(filePath);
+        if (dbFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            if (!writeDatabase(&dbFile, error)) {
+                return false;
+            }
+            dbFile.close();
+            return true;
+        }
+        if (error) {
+            *error = dbFile.errorString();
         }
     } else {
         QTemporaryFile tempFile;
@@ -875,7 +895,7 @@ bool Database::hasNonDataChanges() const
 void Database::markAsModified()
 {
     m_modified = true;
-    if (!m_modifiedTimer.isActive()) {
+    if (modifiedSignalEnabled() && !m_modifiedTimer.isActive()) {
         // Small time delay prevents numerous consecutive saves due to repeated signals
         startModifiedTimer();
     }
@@ -942,11 +962,13 @@ bool Database::changeKdf(const QSharedPointer<Kdf>& kdf)
     return true;
 }
 
+// Prevent warning about QTimer not allowed to be started/stopped from other thread
 void Database::startModifiedTimer()
 {
     QMetaObject::invokeMethod(&m_modifiedTimer, "start", Q_ARG(int, 150));
 }
 
+// Prevent warning about QTimer not allowed to be started/stopped from other thread
 void Database::stopModifiedTimer()
 {
     QMetaObject::invokeMethod(&m_modifiedTimer, "stop");

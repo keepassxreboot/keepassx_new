@@ -63,6 +63,15 @@ public:
     };
     static const quint32 CompressionAlgorithmMax = CompressionGZip;
 
+    enum SaveFlag
+    {
+        Atomic = 0x0, // Saves are transactional and atomic
+        NonAtomic = 0x1, // Save operation may be interrupted
+        Backup = 0x2, // Make copy of original database before saving
+        DirectWrite = 0x4, // Directly write to the file (dangerous)
+    };
+    Q_DECLARE_FLAGS(SaveFlags, SaveFlag);
+
     Database();
     explicit Database(const QString& filePath);
     ~Database() override;
@@ -72,8 +81,8 @@ public:
               QSharedPointer<const CompositeKey> key,
               QString* error = nullptr,
               bool readOnly = false);
-    bool save(QString* error = nullptr, bool atomic = true, bool backup = false);
-    bool saveAs(const QString& filePath, QString* error = nullptr, bool atomic = true, bool backup = false);
+    bool save(SaveFlags flags = Atomic, QString* error = nullptr);
+    bool saveAs(const QString& filePath, SaveFlags flags = Atomic, QString* error = nullptr);
     bool extract(QByteArray&, QString* error = nullptr);
     bool import(const QString& xmlExportPath, QString* error = nullptr);
 
@@ -198,7 +207,7 @@ private:
     bool writeDatabase(QIODevice* device, QString* error = nullptr);
     bool backupDatabase(const QString& filePath);
     bool restoreDatabase(const QString& filePath);
-    bool performSave(const QString& filePath, QString* error, bool atomic, bool backup);
+    bool performSave(const QString& filePath, SaveFlags flags, QString* error);
     void startModifiedTimer();
     void stopModifiedTimer();
 
@@ -218,5 +227,7 @@ private:
     QUuid m_uuid;
     static QHash<QUuid, QPointer<Database>> s_uuidMap;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Database::SaveFlags);
 
 #endif // KEEPASSX_DATABASE_H

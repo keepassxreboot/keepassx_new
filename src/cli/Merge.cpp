@@ -95,7 +95,7 @@ int Merge::executeWithDatabase(QSharedPointer<Database> database, QSharedPointer
 
     if (!changeList.isEmpty() && !parser->isSet(Merge::DryRunOption)) {
         QString errorMessage;
-        if (!database->save(&errorMessage, true, false)) {
+        if (!database->save(Database::Atomic, &errorMessage)) {
             err << QObject::tr("Unable to save database to file : %1").arg(errorMessage) << endl;
             return EXIT_FAILURE;
         }

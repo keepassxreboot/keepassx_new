@@ -63,7 +63,7 @@ int AddGroup::executeWithDatabase(QSharedPointer<Database> database, QSharedPoin
     newGroup->setParent(parentGroup);
 
     QString errorMessage;
-    if (!database->save(&errorMessage, true, false)) {
+    if (!database->save(Database::Atomic, &errorMessage)) {
         err << QObject::tr("Writing the database failed %1.").arg(errorMessage) << endl;
         return EXIT_FAILURE;
     }
