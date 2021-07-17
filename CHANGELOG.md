@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.6.6. (2021-06-12)
+
+### Fixed
+
+- Fix focusing search when pressing hotkey [#6603]
+- Trim whitespace from TOTP key input prior to processing [#6604]
+- Fix building on macOS [#6598]
+- Resolve compiler warnings for unused return values [#6607]
+
+## 2.6.5 (2021-06-08)
+
+### Added
+
+- Show search bar when toolbar is hidden or in overflow [#6279]
+- Show countdown for clipboard clearing in status bar [#6333]
+- Command line option to lock all open databases [#6511]
+- Allow CSV import of bare TOTP secrets [#6211]
+- Retain file creation time when saving database [#6576]
+- Set permissions of saved attachments to be private to the current user [#6363]
+- OPVault: Use Text instead of Name for attribute names [#6334]
+
+### Changed
+
+- Reports: Allow resizing of reports columns [#6435]
+- Reports: Toggle showing expired entries [#6534]
+- Save Always on Top setting [#6236]
+- Password generator can exclude additional lookalike characters (6/G, 8/B) [#6196]
+
+### Fixed
+
+- Allow setting MSI properties in unattended install [#6196]
+- Update MainWindow minimum size to enable smaller verticle space [#6196]
+- Use application font size when setting default or monospace fonts [#6332]
+- Fix notes not clearing in entry preview panel in some cases [#6481]
+- macOS: Correct window activation when restoring from tray [#6575]
+- macOS: Better handling of minimize after unlock when using browser integration [#6338]
+- Linux: Start after the system tray is available on LXQt [#6216]
+- Linux: Allow selection of modal dialogs on X11 in Auto-Type [#6204]
+- KeeShare: prevent crash when file extension is missing [#6174]
+
 ## 2.6.4 (2021-01-31)
 
 ### Added
