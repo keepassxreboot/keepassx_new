@@ -231,7 +231,7 @@ NOTE: Restoring an old history item will store the current entry settings as a n
 == Automatic Database Opening
 You can setup one or more databases to open automatically when you unlock a single database. This is done by *(1)* defining a special group named `AutoOpen` with *(2)* entries that contain the file path and credentials for each database that should be opened. There is no limit to the number of databases that can be opened.
 
-TIP: Case matters with auto open, the group name must be exactly `AutoOpen`.
+TIP: Case matters with auto open, the group name must be exactly `AutoOpen` and it must be a child of the root group.
 
 .AutoOpen Group and Entries
 image::autoopen.png[]
