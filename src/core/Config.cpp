@@ -87,6 +87,7 @@ static const QHash<Config::ConfigKey, ConfigDirective> configStrings = {
     {Config::LastOpenedDatabases, {QS("LastOpenedDatabases"), Local, {}}},
     {Config::LastDir, {QS("LastDir"), Local, QDir::homePath()}},
     {Config::LastAttachmentDir, {QS("LastAttachmentDir"), Local, {}}},
+    {Config::LastDatabaseBackupDir, {QS("LastDatabaseBackupDir"), Local, {}}},
 
     // GUI
     {Config::GUI_Language, {QS("GUI/Language"), Roaming, QS("system")}},
